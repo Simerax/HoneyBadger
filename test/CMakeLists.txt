@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.5)
+
+# Name of your Library if you change this make sure to change ../CMakeLists.txt as well!
+project("test_HoneyBadger")
+set(LIB_NAME "HoneyBadger")
+
+file(GLOB source_files "*.cpp")
+
+add_executable(${PROJECT_NAME} ${source_files})
+
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIB_NAME})
+
+add_test(
+    NAME ${PROJECT_NAME}
+    COMMAND ${PROJECT_NAME}
+)
