@@ -6,9 +6,12 @@
 
 namespace HoneyBadger {
     class Lexer {
-        public: 
-            std::vector<Token> lex(std::string);
+        private:
             bool is_delimiter(char c);
             bool is_newline(char c);
+            Token::Type get_type(std::string thing);
+            bool looks_like_number(std::string thing);
+        public: 
+            std::vector<Token> lex(std::string);
     };
 }
