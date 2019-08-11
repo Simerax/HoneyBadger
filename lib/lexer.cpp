@@ -22,13 +22,10 @@ std::vector<Token> Lexer::lex(std::string input)
         char cc = input.at(index);
         column++;
 
-        if(word == "" && is_delimiter(cc))
-            continue;
-
-
         if (is_delimiter(cc) || is_newline(cc) || index + 1 == input.length())
         {
-            tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
+            if (word != "")
+                tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
 
             Token::Type t = get_type(std::string(1, cc));
 
