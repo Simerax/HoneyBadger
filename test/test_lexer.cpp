@@ -1,6 +1,10 @@
 #include "../catch2/catch.hpp"
 #include "../lib/lexer.hpp"
 
+
+
+
+
 using namespace HoneyBadger;
 
 TEST_CASE("lex variable definition", "[Lexer]")
@@ -181,27 +185,3 @@ TEST_CASE("function call followed by function definition", "[Lexer]")
     REQUIRE(tokens.at(17).location == Location(4, 1));
     REQUIRE(tokens.at(17).type == Token::Type::KEYWORD);
 }
-
-//#include"../lib/parser.hpp"
-//#include"../lib/codegen.hpp"
-//TEST_CASE("parse this shit", "[Parser]") {
-//    //std::string input = "def func(x, y) do\nx + y\ndef func2(a) do\na + 2.0\n\nend";
-//    std::string input =
-//    "def add(a,b) do\n"
-//    "   a + b\n"
-//    "end\n"
-//    "def func(x, y) do\n"
-//    "   4 + add(1,2)\n"
-//    "end\n"
-//    "";
-//
-//    Lexer l;
-//    auto tokens = l.lex(input);
-//    Parser p(tokens);
-//    auto entrypoint = p.parse();
-//    CodeGenerator cg;
-//    cg.visit(*entrypoint);
-//    cg.get_result();
-//
-//    delete entrypoint;
-//}

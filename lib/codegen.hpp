@@ -10,6 +10,13 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/raw_ostream.h"
 
+#define DLLEXPORT
+
+extern "C" DLLEXPORT double print(double x) {
+    fprintf(stderr, "%f", x);
+    return 0;
+}
+
 namespace HoneyBadger
 {
 class CodeGenerator : public Visitor
@@ -31,6 +38,22 @@ public:
         context = new llvm::LLVMContext();
         builder = new llvm::IRBuilder<>(*context);
         module = llvm::make_unique<llvm::Module>("my jiiiiiiiiit reeeeeeeeeee", *context);
+        define_built_in_functions();
+    }
+
+    CodeGenerator(llvm::IRBuilder<>* builder, std::unique_ptr<llvm::Module> module) {
+        this->builder = builder;
+        this->context = &this->builder->getContext();
+        this->module = std::move(module);
+
+        define_built_in_functions();
+    }
+
+    void define_built_in_functions() {
+        std::vector<llvm::Type*> arg(1, llvm::Type::getDoubleTy(*context));
+
+        llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(*context), arg, false);
+        llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "print", module.get());
     }
 
     bool main_function_defined() {
@@ -53,9 +76,10 @@ public:
     void visit(AST::FunctionCall &n)
     {
         llvm::Function *called_fn = module->getFunction(n._function_name);
-
-        if (!called_fn)
-            throw std::runtime_error("Function '" + n._function_name + "' does not exist!");
+        if (!called_fn) {
+            if(n._function_name != "print")
+                throw std::runtime_error("Function '" + n._function_name + "' does not exist!");
+        }
 
         if (called_fn->arg_size() != n._args.size())
             throw std::runtime_error("Invalid Number of Arguments");
