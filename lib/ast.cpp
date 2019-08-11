@@ -1,6 +1,7 @@
 #include"ast.hpp"
 
-namespace HoneyBadger::AST {
+namespace HoneyBadger {
+namespace AST {
     Variable::Variable(std::string name) {
         //TODO: Add Location
         this->_name = name;
@@ -12,4 +13,5 @@ namespace HoneyBadger::AST {
     void Variable::name(std::string name){
         this->_name = name;
     }
+}
 }

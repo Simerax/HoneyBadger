@@ -17,12 +17,12 @@ Parser::Parser(std::vector<Token> tokens)
     this->tokens = tokens;
 }
 
-std::unique_ptr<AST::Function> Parser::parse()
+AST::Function *Parser::parse()
 {
     return parse_top_level_expression();
 }
 
-std::unique_ptr<AST::Node> Parser::parse_primary()
+AST::Node *Parser::parse_primary()
 {
     switch (current_token().type)
     {
@@ -39,7 +39,7 @@ std::unique_ptr<AST::Node> Parser::parse_primary()
     }
 }
 
-std::unique_ptr<AST::Node> Parser::parse_binary_op_right_side(int expression_precedence, std::unique_ptr<AST::Node> left)
+AST::Node *Parser::parse_binary_op_right_side(int expression_precedence, AST::Node *left)
 {
     while (1)
     {
@@ -58,11 +58,11 @@ std::unique_ptr<AST::Node> Parser::parse_binary_op_right_side(int expression_pre
         {
             right = parse_binary_op_right_side(token_precedence + 1, std::move(right));
         }
-        left = llvm::make_unique<AST::BinaryExpr>(bin_op.value.at(0), std::move(left), std::move(right));
+        left = new AST::BinaryExpr(bin_op.value.at(0), std::move(left), std::move(right));
     }
 }
 
-std::unique_ptr<AST::FunctionSignature> Parser::parse_function_signature()
+AST::FunctionSignature *Parser::parse_function_signature()
 {
     // we basically just read whatever there is as function name and then we test if its actually the function name (e.g. a identifier)
     std::string function_name = current_token().value;
@@ -80,44 +80,44 @@ std::unique_ptr<AST::FunctionSignature> Parser::parse_function_signature()
     expect(")");
     expect("do");
 
-    return llvm::make_unique<AST::FunctionSignature>(function_name, std::move(args));
+    return new AST::FunctionSignature(function_name, std::move(args));
 }
 
-std::unique_ptr<AST::Function> Parser::parse_function()
+AST::Function *Parser::parse_function()
 {
     expect("def");
     auto signature = parse_function_signature();
     auto body = parse_expression();
     expect("end");
-    return llvm::make_unique<AST::Function>(std::move(signature), std::move(body));
+    return new AST::Function(std::move(signature), std::move(body));
 }
 
-std::unique_ptr<AST::Node> Parser::parse_expression()
+AST::Node *Parser::parse_expression()
 {
     auto left = parse_primary();
-    if(current_token().type == Token::Type::END_OF_FILE)
+    if (current_token().type == Token::Type::END_OF_FILE)
         return left;
-    return parse_binary_op_right_side(0, std::move(left));
+    return parse_binary_op_right_side(0, left);
 }
 
 // we allow expressions outside of functions. to make this possible we just wrap the expression in a function with no arguments
-std::unique_ptr<AST::Function> Parser::parse_top_level_expression()
+AST::Function *Parser::parse_top_level_expression()
 {
     auto body = parse_expression();
-    auto signature = llvm::make_unique<AST::FunctionSignature>("__ANON__", std::vector<std::string>());
-    return llvm::make_unique<AST::Function>(std::move(signature), std::move(body));
+    auto signature = new AST::FunctionSignature("__TOP_LEVEL__", std::vector<std::string>());
+    return new AST::Function(signature, body);
 }
 
 // ::= number
-std::unique_ptr<AST::Node> Parser::parse_number_expression()
+AST::Node *Parser::parse_number_expression()
 {
-    auto r = llvm::make_unique<AST::Number>(std::stod(current_token().value));
+    auto r = new AST::Number(std::stod(current_token().value));
     next_token();
-    return std::move(r);
+    return r;
 }
 
 // paren ::= '(' expression ')'
-std::unique_ptr<AST::Node> Parser::parse_parenthesis()
+AST::Node *Parser::parse_parenthesis()
 {
     expect("(");
     auto expr = parse_expression();
@@ -127,23 +127,23 @@ std::unique_ptr<AST::Node> Parser::parse_parenthesis()
 
 // ::= identifier
 // ::= identifier '(' expression ')'
-std::unique_ptr<AST::Node> Parser::parse_identifier_expression()
+AST::Node *Parser::parse_identifier_expression()
 {
     std::string id = current_token().value;
     next_token();
 
     // variable
     if (!accept("("))
-        return llvm::make_unique<AST::Variable>(id);
+        return new AST::Variable(id);
 
     // otherwise Function Call
-    std::vector<std::unique_ptr<AST::Node>> args;
+    std::vector<AST::Node *> args;
     if (!accept(")"))
     { // Function with Parameters
         while (1)
         {
             auto arg = parse_expression();
-            args.push_back(std::move(arg));
+            args.push_back(arg);
 
             // No more Parameters
             if (accept(")"))
@@ -152,7 +152,7 @@ std::unique_ptr<AST::Node> Parser::parse_identifier_expression()
             expect(","); // there are more parameters so i want them to be split!
         }
     }
-    return llvm::make_unique<AST::FunctionCall>(id, std::move(args));
+    return new AST::FunctionCall(id, args);
 }
 
 int Parser::current_token_precedence()

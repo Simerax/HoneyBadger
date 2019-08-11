@@ -1,6 +1,7 @@
 #include"../catch2/catch.hpp"
 #include"../lib/lexer.hpp"
 #include"../lib/parser.hpp"
+#include"../lib/codegen.hpp"
 
 using namespace HoneyBadger;
 
@@ -96,11 +97,20 @@ TEST_CASE("lex function definition", "[Lexer]"){
     REQUIRE(tokens.at(11).type == Token::Type::KEYWORD);
 }
 
-TEST_CASE("parse this shit", "[Parser]") {
-    std::string input = "def func(x, y) do\nx + y\nend";
-
-    Lexer l;
-    auto tokens = l.lex(input);
-    Parser p(tokens);
-    p.parse();
-}
+//TEST_CASE("parse this shit", "[Parser]") {
+//    //std::string input = "def func(x, y) do\nx + y\ndef func2(a) do\na + 2.0\n\nend";
+//    std::string input = 
+//    "func(2.5, 5.0)\n"
+//    "def func(x, y) do\n"
+//    "   x + y\n"
+//    "end\n"
+//    "";
+//
+//    Lexer l;
+//    auto tokens = l.lex(input);
+//    Parser p(tokens);
+//    auto entrypoint = p.parse();
+//    CodeGenerator cg;
+//    cg.visit(*entrypoint);
+//    cg.get_result();
+//}

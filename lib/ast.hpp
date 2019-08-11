@@ -5,8 +5,9 @@
 #include"location.hpp"
 #include"visitor.hpp"
 
+namespace HoneyBadger {
 
-namespace HoneyBadger::AST{
+namespace AST{
     class Node {
         private:
             Location begin;
@@ -42,23 +43,21 @@ namespace HoneyBadger::AST{
     };
 
     class BinaryExpr : public Node {
-        private: 
-            char _op;
-            std::unique_ptr<Node> _left;
-            std::unique_ptr<Node> _right;
         public:
-            BinaryExpr(char op, std::unique_ptr<Node> left, std::unique_ptr<Node> right) : _op(op), _left(std::move(left)), _right(std::move(right)) {}
+            char _op;
+            Node* _left;
+            Node* _right;
+            BinaryExpr(char op, Node* left, Node* right) : _op(op), _left(left), _right(right) {}
             void accept(Visitor &v) {
                 v.visit(*this);
             };
     };
 
     class FunctionCall : public Node {
-        private: 
-            std::string _function_name;
-            std::vector<std::unique_ptr<Node>> _args;
         public:
-            FunctionCall(std::string name, std::vector<std::unique_ptr<Node>> args) : _function_name(name), _args(std::move(args)) {}
+            std::string _function_name;
+            std::vector<Node*> _args;
+            FunctionCall(std::string name, std::vector<Node*> args) : _function_name(name), _args(args) {}
             void accept(Visitor &v) {
                 v.visit(*this);
             };
@@ -78,13 +77,14 @@ namespace HoneyBadger::AST{
     };
 
     class Function : public Node  {
-        private:
-            std::unique_ptr<FunctionSignature> _signature;
-            std::unique_ptr<Node> _body;
         public:
-            Function(std::unique_ptr<FunctionSignature> signature, std::unique_ptr<Node> body) : _signature(std::move(signature)), _body(std::move(body)) {}
+            FunctionSignature* _signature;
+            Node* _body;
+            Function(FunctionSignature* signature, Node* body) : _signature(signature), _body(body) {}
             void accept(Visitor &v) {
                 v.visit(*this);
             };
     };
+}
+
 }

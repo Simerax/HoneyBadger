@@ -17,18 +17,18 @@ namespace HoneyBadger{
             bool expect(std::string thing);
             bool expect(int thing);
 
-            std::unique_ptr<AST::FunctionSignature> parse_function_signature();
-            std::unique_ptr<AST::Function> parse_function();
-            std::unique_ptr<AST::Function> parse_top_level_expression();
-            std::unique_ptr<AST::Node> parse_identifier_expression();
-            std::unique_ptr<AST::Node> parse_parenthesis();
-            std::unique_ptr<AST::Node> parse_number_expression();
-            std::unique_ptr<AST::Node> parse_primary(); 
-            std::unique_ptr<AST::Node> parse_expression(); 
-            std::unique_ptr<AST::Node> parse_binary_op_right_side(int expression_precedence, std::unique_ptr<AST::Node> left); 
+            AST::FunctionSignature* parse_function_signature();
+            AST::Function* parse_function();
+            AST::Function* parse_top_level_expression();
+            AST::Node* parse_identifier_expression();
+            AST::Node* parse_parenthesis();
+            AST::Node* parse_number_expression();
+            AST::Node* parse_primary(); 
+            AST::Node* parse_expression(); 
+            AST::Node* parse_binary_op_right_side(int expression_precedence, AST::Node* left); 
         public:
             Parser(std::vector<Token> tokens);
-            std::unique_ptr<AST::Function> parse();
+            AST::Function* parse();
             //static void parse(std::vector<Token> tokens);
     };
 }
