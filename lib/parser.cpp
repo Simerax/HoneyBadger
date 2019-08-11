@@ -1,5 +1,5 @@
 #include "parser.hpp"
-#include "precedence_table.hpp"
+#include "Operators.hpp"
 #include "llvm/ADT/STLExtras.h"
 #include <exception>
 

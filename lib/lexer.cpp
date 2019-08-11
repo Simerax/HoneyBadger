@@ -1,6 +1,9 @@
 #include "lexer.hpp"
 #include <regex>
 
+#include"precedence_table.hpp"
+#include"Operators.hpp"
+
 namespace HoneyBadger
 {
 std::vector<Token> Lexer::lex(std::string input)
@@ -22,7 +25,7 @@ std::vector<Token> Lexer::lex(std::string input)
         char cc = input.at(index);
         column++;
 
-        if (is_delimiter(cc) || is_newline(cc) || index + 1 == input.length())
+        if (is_delimiter(cc) || is_newline(cc) || is_operator(cc) || index + 1 == input.length())
         {
             if (word != "")
                 tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
@@ -30,7 +33,7 @@ std::vector<Token> Lexer::lex(std::string input)
             Token::Type t = get_type(std::string(1, cc));
 
             // in case the delimiter was a special char we add that one to the tokens
-            if (t == Token::Type::SEPARATOR || t == Token::Type::OPENING_PARENTHESIS || t == Token::Type::CLOSING_PARENTHESIS)
+            if (is_operator(cc) || t == Token::Type::SEPARATOR || t == Token::Type::OPENING_PARENTHESIS || t == Token::Type::CLOSING_PARENTHESIS)
             {
                 tokens.push_back(Token(std::string(1, cc), Location(line, column - 1), t));
             }
@@ -70,7 +73,7 @@ Token::Type Lexer::get_type(std::string word)
         return Token::Type::CLOSING_PARENTHESIS;
     if (word == "do" || word == "end")
         return Token::Type::KEYWORD;
-    if (word == "+" || word == "-" || word == "*" || word == "/")
+    if(word.length() == 1 && is_operator(word.at(0)))
         return Token::Type::BIN_OP;
     if (looks_like_number(word))
         return Token::Type::NUMBER;
@@ -95,5 +98,10 @@ bool Lexer::is_delimiter(char c)
 bool Lexer::is_newline(char c)
 {
     return c == '\n';
+}
+
+bool Lexer::is_operator(char op) {
+    // if its an operator it will have a precedence higher then -1
+    return -1 < Operators::get_instance()->get_precedence(op) ;
 }
 } // namespace HoneyBadger

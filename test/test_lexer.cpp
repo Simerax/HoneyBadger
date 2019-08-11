@@ -106,7 +106,7 @@ TEST_CASE("function call followed by function definition", "[Lexer]")
     std::string input =
         "func(2.5, 5.0)\n"
         "def func(x, y) do\n"
-        "   x + y\n"
+        "   x+y\n"
         "end\n"
         "";
 
@@ -174,11 +174,11 @@ TEST_CASE("function call followed by function definition", "[Lexer]")
     REQUIRE(tokens.at(14).type == Token::Type::IDENTIFIER);
 
     REQUIRE(tokens.at(15).value == "+");
-    REQUIRE(tokens.at(15).location == Location(3, 6));
+    REQUIRE(tokens.at(15).location == Location(3, 5));
     REQUIRE(tokens.at(15).type == Token::Type::BIN_OP);
 
     REQUIRE(tokens.at(16).value == "y");
-    REQUIRE(tokens.at(16).location == Location(3, 8));
+    REQUIRE(tokens.at(16).location == Location(3, 6));
     REQUIRE(tokens.at(16).type == Token::Type::IDENTIFIER);
     
     REQUIRE(tokens.at(17).value == "end");
