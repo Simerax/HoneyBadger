@@ -182,12 +182,16 @@ TEST_CASE("function call followed by function definition", "[Lexer]")
     REQUIRE(tokens.at(17).type == Token::Type::KEYWORD);
 }
 
+//#include"../lib/parser.hpp"
+//#include"../lib/codegen.hpp"
 //TEST_CASE("parse this shit", "[Parser]") {
 //    //std::string input = "def func(x, y) do\nx + y\ndef func2(a) do\na + 2.0\n\nend";
 //    std::string input =
-//    "func(2.5, 5.0)\n"
+//    "def add(a,b) do\n"
+//    "   a + b\n"
+//    "end\n"
 //    "def func(x, y) do\n"
-//    "   x + y\n"
+//    "   4 + add(1,2)\n"
 //    "end\n"
 //    "";
 //

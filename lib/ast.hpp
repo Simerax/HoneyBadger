@@ -85,6 +85,16 @@ namespace AST{
                 v.visit(*this);
             };
     };
+
+    class FunctionTable : public Node {
+            std::vector<Function*> functions;
+        public:
+            void add_function(Function* f) { functions.push_back(f); }
+            std::vector<Function*> get_functions() { return functions; }
+            void accept(Visitor &v){
+                v.visit(*this);
+            }
+    };
 }
 
 }

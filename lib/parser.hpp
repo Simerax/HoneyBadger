@@ -28,7 +28,7 @@ namespace HoneyBadger{
             AST::Node* parse_binary_op_right_side(int expression_precedence, AST::Node* left); 
         public:
             Parser(std::vector<Token> tokens);
-            AST::Function* parse();
+            AST::FunctionTable* parse();
             //static void parse(std::vector<Token> tokens);
     };
 }

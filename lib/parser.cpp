@@ -17,9 +17,13 @@ Parser::Parser(std::vector<Token> tokens)
     this->tokens = tokens;
 }
 
-AST::Function *Parser::parse()
+AST::FunctionTable *Parser::parse()
 {
-    return parse_top_level_expression();
+    AST::FunctionTable* functions = new AST::FunctionTable();
+    while(current_token().type != Token::Type::END_OF_FILE) {
+        functions->add_function(parse_function());
+    }
+    return functions;
 }
 
 AST::Node *Parser::parse_primary()
@@ -100,13 +104,14 @@ AST::Node *Parser::parse_expression()
     return parse_binary_op_right_side(0, left);
 }
 
+
 // we allow expressions outside of functions. to make this possible we just wrap the expression in a function with no arguments
-AST::Function *Parser::parse_top_level_expression()
-{
-    auto body = parse_expression();
-    auto signature = new AST::FunctionSignature("__TOP_LEVEL__", std::vector<std::string>());
-    return new AST::Function(signature, body);
-}
+//AST::Function *Parser::parse_top_level_expression()
+//{
+//    auto body = parse_expression();
+//    auto signature = new AST::FunctionSignature("__TOP_LEVEL__", std::vector<std::string>());
+//    return new AST::Function(signature, body);
+//}
 
 // ::= number
 AST::Node *Parser::parse_number_expression()
@@ -181,7 +186,7 @@ bool Parser::expect(int thing)
     else
     {
         auto location = current_token().location;
-        throw std::runtime_error("Unexpected Token " + current_token().value + " at " + location.to_string());
+        throw std::runtime_error("Unexpected Token '" + current_token().value + "' at " + location.to_string());
     }
     return false;
 }
@@ -196,7 +201,7 @@ bool Parser::expect(std::string thing)
     else
     {
         auto location = current_token().location;
-        throw std::runtime_error("Unexpected Token " + current_token().value + " at " + location.to_string());
+        throw std::runtime_error("Unexpected Token '" + current_token().value + "' at " + location.to_string() + " should have been: '"+thing+"'");
     }
     return false;
 }

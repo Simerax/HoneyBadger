@@ -23,24 +23,7 @@ private:
     llvm::Value *current_value = nullptr;
     llvm::Function *current_function = nullptr;
 
-    // Why do we need to keep track of this function in a special kind of way?
-    // the "top level" function basically wraps all "free floating" expressions and the other function definitions
-    // this means that there can be a function defined within our (top level) function (which is forbidden otherwise)
-    // if we would not seperate this function from the rest then the llvm::IRBuilder would insert top level code in its last known function
-    //
-    //  lets say we create a function A().
-    //  we would first reach the __TOP_LEVEL__ Function (which is provided by the parser!) to handle free floating expressions
-    //  then we find the Function A(). 
-    //  We start generating its signature. At this point our "current_function" is A()
-    //  After that we generate the functions body (IRBuilder is inserting code into that function)
-    //  Now, after the body is complete, we generate its return value (last expression from the body)
-    //  Next we "leave" the function. We are back in our __TOP_LEVEL__ Function.
-    //  Now the IRBuilder is still in the context of A() and will insert any future code into that function
-    //  This of course is wrong since we are back in our __TOP_LEVEL__ Function.
-    //  Thats why we now explicitly set our insert_point back to top_level_function_insert_point
-    //  
-    llvm::Function *top_level_function = nullptr;
-    llvm::BasicBlock *top_level_function_insert_point = nullptr;
+    llvm::Function *main_function = nullptr;
 
 public:
     CodeGenerator()
@@ -50,10 +33,17 @@ public:
         module = llvm::make_unique<llvm::Module>("my jiiiiiiiiit reeeeeeeeeee", *context);
     }
 
-    llvm::Function *get_result()
+    std::unique_ptr<llvm::Module> get_result()
     {
         module->print(llvm::errs(), nullptr);
-        return top_level_function;
+        return std::move(module);
+    }
+
+    void visit(AST::FunctionTable &n) {
+        std::vector<AST::Function*> functions = n.get_functions();
+
+        for(unsigned int i = 0; i < functions.size(); ++i)
+            functions[i]->accept(*this);
     }
 
     void visit(AST::FunctionCall &n)
@@ -76,14 +66,10 @@ public:
 
         current_value = builder->CreateCall(called_fn, args_for_llvm, "calltmp");
     }
+
     void visit(AST::Function &n)
     {
-        bool is_top_level_function = false;
         std::string fn_name = n._signature->get_name();
-
-        if (fn_name == "__TOP_LEVEL__")
-            is_top_level_function = true;
-
         llvm::Function *fn = module->getFunction(fn_name);
 
         if (!fn)
@@ -96,17 +82,10 @@ public:
         if (!fn->empty())
             throw std::runtime_error("Functions cannot be redefined!");
 
-        if (is_top_level_function)
-            top_level_function = fn;
 
         llvm::BasicBlock *block = llvm::BasicBlock::Create(*context, "entry", fn);
         builder->SetInsertPoint(block);
 
-        // normally we don't allow a function inside a function but our top level (outside any function)
-        // is basically wrapped in a anonymous function. 
-        // To not lose track about our insert point for "free floating" expressions we need to make sure we keep this insert point around
-        if(is_top_level_function)
-            top_level_function_insert_point = block;
 
         named_values.clear();
         for (auto &arg : fn->args())
@@ -117,16 +96,13 @@ public:
         llvm::Value *ret_val = current_value;
         current_value = nullptr;
 
-        if (is_top_level_function) {
-            builder->SetInsertPoint(top_level_function_insert_point);
-            builder->CreateRet(nullptr); // top level function always returns void - at least for now
-        }
-        else
-        {
-            if (!ret_val)
-                throw std::runtime_error("Could not generate body for function");
-            builder->CreateRet(ret_val);
-        }
+        if (!ret_val)
+            throw std::runtime_error("Could not generate body for function");
+        
+        if(fn_name == "main")
+            main_function = fn;
+
+        builder->CreateRet(ret_val);
         current_function = fn;
     }
 
@@ -196,7 +172,7 @@ public:
 
     void visit(AST::Node &n)
     {
-        throw std::runtime_error("This should never happend");
+        throw std::runtime_error("This should never happen. You forgot to add the AST:: ... Type to the Visitor");
     }
 };
 } // namespace HoneyBadger

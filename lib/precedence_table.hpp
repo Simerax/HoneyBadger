@@ -37,9 +37,9 @@ namespace HoneyBadger {
                     return PrecedenceTable::LESS;
                 if(thing == '+')
                     return PrecedenceTable::PLUS;
-                if(thing == '<')
+                if(thing == '-')
                     return PrecedenceTable::MINUS;
-                if(thing == '<')
+                if(thing == '*')
                     return PrecedenceTable::MULTIPLY;
                 if(thing == '/')
                     return PrecedenceTable::DIVIDE;
