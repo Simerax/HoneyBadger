@@ -60,9 +60,9 @@ AST::Node *Parser::parse_binary_op_right_side(int expression_precedence, AST::No
         int next_precedence = current_token_precedence();
         if (token_precedence < next_precedence)
         {
-            right = parse_binary_op_right_side(token_precedence + 1, std::move(right));
+            right = parse_binary_op_right_side(token_precedence + 1, right);
         }
-        left = new AST::BinaryExpr(bin_op.value.at(0), std::move(left), std::move(right));
+        left = new AST::BinaryExpr(bin_op.value.at(0), left, right);
     }
 }
 
@@ -84,7 +84,7 @@ AST::FunctionSignature *Parser::parse_function_signature()
     expect(")");
     expect("do");
 
-    return new AST::FunctionSignature(function_name, std::move(args));
+    return new AST::FunctionSignature(function_name, args);
 }
 
 AST::Function *Parser::parse_function()
@@ -93,7 +93,7 @@ AST::Function *Parser::parse_function()
     auto signature = parse_function_signature();
     auto body = parse_expression();
     expect("end");
-    return new AST::Function(std::move(signature), std::move(body));
+    return new AST::Function(signature, body);
 }
 
 AST::Node *Parser::parse_expression()

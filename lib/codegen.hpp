@@ -33,6 +33,10 @@ public:
         module = llvm::make_unique<llvm::Module>("my jiiiiiiiiit reeeeeeeeeee", *context);
     }
 
+    bool main_function_defined() {
+        return main_function != nullptr;
+    }
+
     std::unique_ptr<llvm::Module> get_result()
     {
         module->print(llvm::errs(), nullptr);

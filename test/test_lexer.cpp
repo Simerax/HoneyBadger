@@ -202,4 +202,6 @@ TEST_CASE("function call followed by function definition", "[Lexer]")
 //    CodeGenerator cg;
 //    cg.visit(*entrypoint);
 //    cg.get_result();
+//
+//    delete entrypoint;
 //}

@@ -44,6 +44,12 @@ namespace AST{
 
     class BinaryExpr : public Node {
         public:
+            ~BinaryExpr() {
+                if(_left != nullptr)
+                    delete _left;
+                if(_right != nullptr)
+                    delete _right;
+            }
             char _op;
             Node* _left;
             Node* _right;
@@ -55,6 +61,11 @@ namespace AST{
 
     class FunctionCall : public Node {
         public:
+            ~FunctionCall() {
+                for(auto &e : _args)
+                    if(e != nullptr)
+                        delete e;
+            }
             std::string _function_name;
             std::vector<Node*> _args;
             FunctionCall(std::string name, std::vector<Node*> args) : _function_name(name), _args(args) {}
@@ -78,6 +89,12 @@ namespace AST{
 
     class Function : public Node  {
         public:
+            ~Function() {
+                if(_signature != nullptr)
+                    delete _signature;
+                if(_body != nullptr)
+                    delete _body;
+            }
             FunctionSignature* _signature;
             Node* _body;
             Function(FunctionSignature* signature, Node* body) : _signature(signature), _body(body) {}
@@ -89,6 +106,11 @@ namespace AST{
     class FunctionTable : public Node {
             std::vector<Function*> functions;
         public:
+            ~FunctionTable() {
+                for(auto &e : functions)
+                    if(e != nullptr)
+                        delete e;
+            }
             void add_function(Function* f) { functions.push_back(f); }
             std::vector<Function*> get_functions() { return functions; }
             void accept(Visitor &v){
