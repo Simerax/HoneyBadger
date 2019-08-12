@@ -24,8 +24,8 @@ TEST_CASE("Multiple Expressions in a block", "[Parser]")
     "";
 
     auto tokens = Lexer().lex(input);
-    Parser p(tokens);
-    auto function_table = p.parse();
+    Parser p;
+    auto function_table = p.parse(tokens);
     REQUIRE(1 == 1); // TODO: I have to make fakeit work with the visitor. for now at least make sure no exception is thrown
 }
 

@@ -6,13 +6,10 @@
 namespace HoneyBadger
 {
 
-Parser::Parser(std::vector<Token> tokens)
+
+AST::FunctionTable *Parser::parse(std::vector<Token> tokens)
 {
     this->tokens = tokens;
-}
-
-AST::FunctionTable *Parser::parse()
-{
     AST::FunctionTable *functions = new AST::FunctionTable();
     while (current_token().type != Token::Type::END_OF_FILE)
     {

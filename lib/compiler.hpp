@@ -60,8 +60,8 @@ public:
         try
         {
             Lexer lexer;
-            Parser parser(lexer.lex(filecontent));
-            function_table = parser.parse();
+            Parser parser;
+            function_table = parser.parse(lexer.lex(filecontent));
             cg.visit(*function_table);
             module = cg.get_result();
         }
