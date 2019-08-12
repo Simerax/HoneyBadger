@@ -9,6 +9,26 @@
 using namespace HoneyBadger;
 using namespace fakeit;
 
+TEST_CASE("Multiple Expressions in a block", "[Parser]")
+{
+    std::string input = 
+    "def func(a,b) do\n"
+    "   if a < b do\n"
+    "       a + b\n"
+    "       a + b * 2\n"
+    "   else\n"
+    "       a - b\n"
+    "       a + b * 2\n"
+    "   end\n"
+    "end"
+    "";
+
+    auto tokens = Lexer().lex(input);
+    Parser p(tokens);
+    auto function_table = p.parse();
+    REQUIRE(1 == 1); // TODO: I have to make fakeit work with the visitor. for now at least make sure no exception is thrown
+}
+
 TEST_CASE("Parser Tests", "[Parser]")
 {
 

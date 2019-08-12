@@ -187,6 +187,11 @@ public:
         //llvm::verifyFunction(*fn);
     }
 
+    void visit(AST::Block &n) {
+        for(auto &expr : n.get_expressions())
+            expr->accept(*this);
+    }
+
     void visit(AST::FunctionSignature &fs)
     {
         //TODO: types right now we only have doubles so everything is a double

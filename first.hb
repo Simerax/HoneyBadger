@@ -7,6 +7,7 @@ def funky_multiply(a,b) do
         a + b
     else
         a * b
+        a * b + 2
     end
 end
 def main() do

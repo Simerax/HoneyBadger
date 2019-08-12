@@ -9,6 +9,7 @@ namespace HoneyBadger{
         private:
             unsigned int current_index = 0;
             std::vector<Token> tokens;
+            bool inside_if_then_block = false;
 
             int current_token_precedence();
             Token current_token();
@@ -20,6 +21,7 @@ namespace HoneyBadger{
             AST::FunctionSignature* parse_function_signature();
             AST::Function* parse_function();
             AST::Function* parse_top_level_expression();
+            AST::Block* parse_block();
             AST::Node* parse_identifier_expression();
             AST::Node* parse_parenthesis();
             AST::Node* parse_number_expression();
@@ -28,8 +30,8 @@ namespace HoneyBadger{
             AST::Node* parse_if_expression();
             AST::Node* parse_binary_op_right_side(int expression_precedence, AST::Node* left); 
         public:
+            //TODO: Change it to Tokens on parse not on constructor
             Parser(std::vector<Token> tokens);
             AST::FunctionTable* parse();
-            //static void parse(std::vector<Token> tokens);
     };
 }

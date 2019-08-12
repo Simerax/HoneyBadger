@@ -5,12 +5,6 @@
 
 namespace HoneyBadger
 {
-/*
-    void Parser::parse(std::vector<Token> tokens) {
-        Parser p(tokens);
-        p.parse();
-    }
-    */
 
 Parser::Parser(std::vector<Token> tokens)
 {
@@ -35,8 +29,6 @@ AST::Node *Parser::parse_primary()
         throw std::runtime_error("What is \"" + current_token().value + "\" ?");
     case Token::Type::IDENTIFIER:
         return parse_identifier_expression();
-    case Token::Type::FUNCTION_DEFINITION:
-        return parse_function();
     case Token::Type::NUMBER:
         return parse_number_expression();
     case Token::Type::IF:
@@ -50,12 +42,22 @@ AST::Node* Parser::parse_if_expression() {
     expect("if");
     auto condition = parse_expression();
     expect("do");
-    auto then = parse_expression();
+    inside_if_then_block = true; // the parse_block() should know that this block ends with "else" instead of "end"
+    auto then = parse_block();
+    inside_if_then_block = false;
     expect("else"); // every statement has to return a value so we cant allow if without an else
-    auto _else = parse_expression();
+    auto _else = parse_block();
     expect("end");
 
     return new AST::If(condition, then, _else);
+}
+
+AST::Block* Parser::parse_block() {
+    AST::Block* block = new AST::Block;
+    while((!inside_if_then_block && current_token().value != "end") || (inside_if_then_block && current_token().value != "else")) {
+        block->add_expression(parse_expression());
+    }
+    return block;
 }
 
 AST::Node *Parser::parse_binary_op_right_side(int expression_precedence, AST::Node *left)
@@ -106,7 +108,7 @@ AST::Function *Parser::parse_function()
 {
     expect("def");
     auto signature = parse_function_signature();
-    auto body = parse_expression();
+    auto body = parse_block();
     expect("end");
     return new AST::Function(signature, body);
 }
