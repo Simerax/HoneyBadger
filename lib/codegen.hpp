@@ -32,7 +32,7 @@ public:
     {
         context = new llvm::LLVMContext();
         builder = new llvm::IRBuilder<>(*context);
-        module = llvm::make_unique<llvm::Module>("my jiiiiiiiiit reeeeeeeeeee", *context);
+        module = llvm::make_unique<llvm::Module>("MyModule", *context);
         define_built_in_functions();
     }
 
