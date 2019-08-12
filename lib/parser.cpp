@@ -23,7 +23,7 @@ AST::Node *Parser::parse_primary()
     switch (current_token().type)
     {
     default:
-        throw std::runtime_error("What is \"" + current_token().value + "\" ?");
+        throw std::runtime_error("Unexpected Token '" + current_token().value + "' at " + current_token().location.to_string());
     case Token::Type::IDENTIFIER:
         return parse_identifier_expression();
     case Token::Type::NUMBER:
