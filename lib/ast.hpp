@@ -9,9 +9,6 @@ namespace HoneyBadger {
 
 namespace AST{
 
-    template<typename T>
-    using Ref = std::shared_ptr<T>;
-
     class Node {
         private:
             Location begin;
