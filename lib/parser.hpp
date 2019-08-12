@@ -3,6 +3,7 @@
 #include<string>
 #include"token.hpp"
 #include"ast.hpp"
+#include"ref.hpp"
 
 namespace HoneyBadger{
     class Parser {
@@ -18,18 +19,18 @@ namespace HoneyBadger{
             bool expect(std::string thing);
             bool expect(int thing);
 
-            AST::FunctionSignature* parse_function_signature();
-            AST::Function* parse_function();
-            AST::Function* parse_top_level_expression();
-            AST::Block* parse_block();
-            AST::Node* parse_identifier_expression();
-            AST::Node* parse_parenthesis();
-            AST::Node* parse_number_expression();
-            AST::Node* parse_primary(); 
-            AST::Node* parse_expression(); 
-            AST::Node* parse_if_expression();
-            AST::Node* parse_binary_op_right_side(int expression_precedence, AST::Node* left); 
+            Ref<AST::FunctionSignature> parse_function_signature();
+            Ref<AST::Function> parse_function();
+            Ref<AST::Function> parse_top_level_expression();
+            Ref<AST::Block> parse_block();
+            Ref<AST::Node> parse_identifier_expression();
+            Ref<AST::Node> parse_parenthesis();
+            Ref<AST::Node> parse_number_expression();
+            Ref<AST::Node> parse_primary(); 
+            Ref<AST::Node> parse_expression(); 
+            Ref<AST::Node> parse_if_expression();
+            Ref<AST::Node> parse_binary_op_right_side(int expression_precedence, Ref<AST::Node> left); 
         public:
-            AST::FunctionTable* parse(std::vector<Token> tokens);
+            Ref<AST::FunctionTable> parse(std::vector<Token> tokens);
     };
 }

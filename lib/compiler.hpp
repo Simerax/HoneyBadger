@@ -5,6 +5,7 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "codegen.hpp"
+#include "ref.hpp"
 #include"llvm/Support/TargetSelect.h" // InitializeAllTargets etc.
 #include"llvm/Support/Host.h" // llvm::sys::getDefaultTargetTriple();
 #include"llvm/Support/TargetRegistry.h" // llvm::TargetRegistry::
@@ -41,7 +42,7 @@ public:
     std::string get_last_error() { return this->last_error; }
     bool compile(std::string file)
     {
-        AST::FunctionTable *function_table = nullptr;
+        Ref<AST::FunctionTable> function_table = nullptr;
         CodeGenerator cg;
         std::unique_ptr<llvm::Module> module;
 
@@ -70,9 +71,6 @@ public:
             last_error = e.what();
             return false;
         }
-
-        if (function_table != nullptr)
-            delete function_table;
 
         if (!cg.main_function_defined())
         {

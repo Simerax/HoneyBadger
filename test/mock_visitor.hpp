@@ -2,6 +2,7 @@
 #pragma once
 #include"../lib/visitor.hpp"
 #include"../lib/ast.hpp"
+#include"../lib/ref.hpp"
 
 
 namespace HoneyBadger
@@ -13,7 +14,7 @@ public:
     void on_function_table(AST::FunctionTable &n){}
     void visit(AST::FunctionTable &n) {
         on_function_table(n);
-        std::vector<AST::Function*> functions = n.get_functions();
+        std::vector<Ref<AST::Function>> functions = n.get_functions();
         for(unsigned int i = 0; i < functions.size(); ++i)
             functions[i]->accept(*this);
     }

@@ -7,18 +7,16 @@ namespace HoneyBadger
 {
 
 
-AST::FunctionTable *Parser::parse(std::vector<Token> tokens)
+Ref<AST::FunctionTable> Parser::parse(std::vector<Token> tokens)
 {
     this->tokens = tokens;
-    AST::FunctionTable *functions = new AST::FunctionTable();
+    Ref<AST::FunctionTable> functions = std::make_shared<AST::FunctionTable>();
     while (current_token().type != Token::Type::END_OF_FILE)
-    {
         functions->add_function(parse_function());
-    }
     return functions;
 }
 
-AST::Node *Parser::parse_primary()
+Ref<AST::Node> Parser::parse_primary()
 {
     switch (current_token().type)
     {
@@ -35,29 +33,29 @@ AST::Node *Parser::parse_primary()
     }
 }
 
-AST::Node* Parser::parse_if_expression() {
+Ref<AST::Node> Parser::parse_if_expression() {
     expect("if");
-    auto condition = parse_expression();
+    Ref<AST::Node> condition = parse_expression();
     expect("do");
     inside_if_then_block = true; // the parse_block() should know that this block ends with "else" instead of "end"
-    auto then = parse_block();
+    Ref<AST::Block> then = parse_block();
     inside_if_then_block = false;
     expect("else"); // every statement has to return a value so we cant allow if without an else
-    auto _else = parse_block();
+    Ref<AST::Block> _else = parse_block();
     expect("end");
 
-    return new AST::If(condition, then, _else);
+    return std::make_shared<AST::If>(condition, then, _else);
 }
 
-AST::Block* Parser::parse_block() {
-    AST::Block* block = new AST::Block;
+Ref<AST::Block> Parser::parse_block() {
+    auto block = std::make_shared<AST::Block>();
     while((!inside_if_then_block && current_token().value != "end") || (inside_if_then_block && current_token().value != "else")) {
         block->add_expression(parse_expression());
     }
     return block;
 }
 
-AST::Node *Parser::parse_binary_op_right_side(int expression_precedence, AST::Node *left)
+Ref<AST::Node> Parser::parse_binary_op_right_side(int expression_precedence, Ref<AST::Node> left)
 {
     while (1)
     {
@@ -76,11 +74,11 @@ AST::Node *Parser::parse_binary_op_right_side(int expression_precedence, AST::No
         {
             right = parse_binary_op_right_side(token_precedence + 1, right);
         }
-        left = new AST::BinaryExpr(bin_op.value.at(0), left, right);
+        left = std::make_shared<AST::BinaryExpr>(bin_op.value.at(0), left, right);
     }
 }
 
-AST::FunctionSignature *Parser::parse_function_signature()
+Ref<AST::FunctionSignature> Parser::parse_function_signature()
 {
     // we basically just read whatever there is as function name and then we test if its actually the function name (e.g. a identifier)
     std::string function_name = current_token().value;
@@ -98,19 +96,19 @@ AST::FunctionSignature *Parser::parse_function_signature()
     expect(")");
     expect("do");
 
-    return new AST::FunctionSignature(function_name, args);
+    return std::make_shared<AST::FunctionSignature>(function_name, args);
 }
 
-AST::Function *Parser::parse_function()
+Ref<AST::Function> Parser::parse_function()
 {
     expect("def");
     auto signature = parse_function_signature();
     auto body = parse_block();
     expect("end");
-    return new AST::Function(signature, body);
+    return std::make_shared<AST::Function>(signature, body);
 }
 
-AST::Node *Parser::parse_expression()
+Ref<AST::Node> Parser::parse_expression()
 {
     auto left = parse_primary();
     if (current_token().type == Token::Type::END_OF_FILE)
@@ -127,15 +125,15 @@ AST::Node *Parser::parse_expression()
 //}
 
 // ::= number
-AST::Node *Parser::parse_number_expression()
+Ref<AST::Node> Parser::parse_number_expression()
 {
-    auto r = new AST::Number(std::stod(current_token().value));
+    auto r = std::make_shared<AST::Number>(std::stod(current_token().value));
     next_token();
     return r;
 }
 
 // paren ::= '(' expression ')'
-AST::Node *Parser::parse_parenthesis()
+Ref<AST::Node> Parser::parse_parenthesis()
 {
     expect("(");
     auto expr = parse_expression();
@@ -145,17 +143,17 @@ AST::Node *Parser::parse_parenthesis()
 
 // ::= identifier
 // ::= identifier '(' expression ')'
-AST::Node *Parser::parse_identifier_expression()
+Ref<AST::Node> Parser::parse_identifier_expression()
 {
     std::string id = current_token().value;
     next_token();
 
     // variable
     if (!accept("("))
-        return new AST::Variable(id);
+        return std::make_shared<AST::Variable>(id);
 
     // otherwise Function Call
-    std::vector<AST::Node *> args;
+    std::vector<Ref<AST::Node>> args;
     if (!accept(")"))
     { // Function with Parameters
         while (1)
@@ -170,7 +168,7 @@ AST::Node *Parser::parse_identifier_expression()
             expect(","); // there are more parameters so i want them to be split!
         }
     }
-    return new AST::FunctionCall(id, args);
+    return std::make_shared<AST::FunctionCall>(id, args);
 }
 
 int Parser::current_token_precedence()

@@ -119,7 +119,7 @@ public:
 
     void visit(AST::FunctionTable &n)
     {
-        std::vector<AST::Function *> functions = n.get_functions();
+        std::vector<Ref<AST::Function>> functions = n.get_functions();
 
         for (auto &arg : functions)
             arg->accept(*this);

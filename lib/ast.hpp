@@ -1,13 +1,17 @@
 #pragma once
 #include<string>
 #include<vector>
-#include<memory>
 #include"location.hpp"
 #include"visitor.hpp"
+#include"ref.hpp"
 
 namespace HoneyBadger {
 
 namespace AST{
+
+    template<typename T>
+    using Ref = std::shared_ptr<T>;
+
     class Node {
         private:
             Location begin;
@@ -21,42 +25,26 @@ namespace AST{
     /// A list of Expressions
     ///
     /// A Block contains a list of expressions. For example a Function has a body that body is a block
-    /// Will delete all of its Expressions when deleted
     class Block : public Node {
         private:
-            std::vector<Node*> _expressions;
+            std::vector<Ref<Node>> _expressions;
         public:
             Block(){}
-            Block(std::vector<Node*> expressions) : _expressions(expressions) {}
-            ~Block() {
-                for(auto &ex : _expressions)
-                    if(ex != nullptr)
-                        delete ex;
-            }
+            Block(std::vector<Ref<Node>> expressions) : _expressions(expressions) {}
             void accept(Visitor &v){ v.visit(*this); }
-            std::vector<Node*> get_expressions() { return _expressions; }
-            void add_expression(Node* expression) { _expressions.push_back(expression); }
+            std::vector<Ref<Node>> get_expressions() { return _expressions; }
+            void add_expression(Ref<Node> expression) { _expressions.push_back(expression); }
     };
 
     /// Keeps the subexpressions which make up an if. those are a condition, a then-block and an else-block
     ///
-    /// Deletes its condition, then and else nodes when deleted
     class If : public Node {
         public:
-            Node* _condition;
-            Block* _then; 
-            Block* _else; 
+            Ref<Node> _condition;
+            Ref<Block> _then; 
+            Ref<Block> _else; 
 
-            ~If() {
-                if(_condition != nullptr)
-                    delete _condition;
-                if(_then != nullptr)
-                    delete _then;
-                if(_else != nullptr)
-                    delete _else;
-            }
-
-            If(Node* condition, Block* then, Block* els) : _condition(condition), _then(then), _else(els) {}
+            If(Ref<Node> condition, Ref<Block> then, Ref<Block> els) : _condition(condition), _then(then), _else(els) {}
 
             void accept(Visitor &v) {
                 v.visit(*this);
@@ -92,19 +80,12 @@ namespace AST{
     /// Keeps a binary expression such as a + b or 2 * b.
     ///
     /// This kind of node is often used recursivly. the _left or _right can also be BinaryExpressions to make complex expressions such as 1 + 2 * x
-    /// Deletes its left and right node when deleted
     class BinaryExpr : public Node {
         public:
-            ~BinaryExpr() {
-                if(_left != nullptr)
-                    delete _left;
-                if(_right != nullptr)
-                    delete _right;
-            }
             char _op;
-            Node* _left;
-            Node* _right;
-            BinaryExpr(char op, Node* left, Node* right) : _op(op), _left(left), _right(right) {}
+            Ref<Node> _left;
+            Ref<Node> _right;
+            BinaryExpr(char op, Ref<Node> left, Ref<Node> right) : _op(op), _left(left), _right(right) {}
             void accept(Visitor &v) {
                 v.visit(*this);
             };
@@ -113,17 +94,11 @@ namespace AST{
     /// Keeps the expressions which make up the parameters of a given Function
     ///
     /// Note: This is different then FunctionSignature!
-    /// Deletes its arguments when deleted
     class FunctionCall : public Node {
         public:
-            ~FunctionCall() {
-                for(auto &e : _args)
-                    if(e != nullptr)
-                        delete e;
-            }
             std::string _function_name;
-            std::vector<Node*> _args;
-            FunctionCall(std::string name, std::vector<Node*> args) : _function_name(name), _args(args) {}
+            std::vector<Ref<Node>> _args;
+            FunctionCall(std::string name, std::vector<Ref<Node>> args) : _function_name(name), _args(args) {}
             void accept(Visitor &v) {
                 v.visit(*this);
             };
@@ -150,18 +125,11 @@ namespace AST{
 
     /// Function
     ///
-    /// Will delete its signature and body when deleted 
     class Function : public Node  {
         public:
-            ~Function() {
-                if(_signature != nullptr)
-                    delete _signature;
-                if(_body != nullptr)
-                    delete _body;
-            }
-            FunctionSignature* _signature;
-            Block* _body;
-            Function(FunctionSignature* signature, Block* body) : _signature(signature), _body(body) {}
+            Ref<FunctionSignature> _signature;
+            Ref<Block> _body;
+            Function(Ref<FunctionSignature> signature, Ref<Block> body) : _signature(signature), _body(body) {}
             void accept(Visitor &v) {
                 v.visit(*this);
             };
@@ -170,17 +138,11 @@ namespace AST{
     /// List of Functions
     ///
     /// Usually you create a function table per Module. This Table keeps a reference to all of the modules functions.
-    /// Will delete all of its functions when deleted
     class FunctionTable : public Node {
-            std::vector<Function*> functions;
+            std::vector<Ref<Function>> functions;
         public:
-            ~FunctionTable() {
-                for(auto &e : functions)
-                    if(e != nullptr)
-                        delete e;
-            }
-            void add_function(Function* f) { functions.push_back(f); }
-            std::vector<Function*> get_functions() { return functions; }
+            void add_function(Ref<Function> f) { functions.push_back(f); }
+            std::vector<Ref<Function>> get_functions() { return functions; }
             void accept(Visitor &v){
                 v.visit(*this);
             }
