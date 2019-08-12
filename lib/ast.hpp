@@ -45,9 +45,9 @@ namespace AST{
             std::string _name;
 
         public:
-            Variable(std::string name);
-            std::string name();
-            void name(std::string name);
+            Variable(std::string name) : _name(name) {}
+            std::string name() { return this->_name; }
+            void name(std::string name) { this->_name = name; }
             void accept(Visitor &v) {
                 v.visit(*this);
             };
