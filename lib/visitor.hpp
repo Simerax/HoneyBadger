@@ -10,6 +10,8 @@ namespace HoneyBadger {
         class FunctionCall;
         class FunctionSignature;
         class Function;
+        class FunctionTable;
+        class If;
     }
 
     class Visitor{
@@ -21,5 +23,7 @@ namespace HoneyBadger {
         virtual void visit(AST::FunctionCall &n) = 0;
         virtual void visit(AST::FunctionSignature &n) = 0;
         virtual void visit(AST::Function &n) = 0;
+        virtual void visit(AST::FunctionTable &n) = 0;
+        virtual void visit(AST::If &n) = 0;
     };
 }

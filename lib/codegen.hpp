@@ -9,13 +9,8 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/Verifier.h" // verifyFunction
 
-#define DLLEXPORT
-
-extern "C" DLLEXPORT double print(double x) {
-    fprintf(stderr, "%f", x);
-    return 0;
-}
 
 namespace HoneyBadger
 {
@@ -41,7 +36,8 @@ public:
         define_built_in_functions();
     }
 
-    CodeGenerator(llvm::IRBuilder<>* builder, std::unique_ptr<llvm::Module> module) {
+    CodeGenerator(llvm::IRBuilder<> *builder, std::unique_ptr<llvm::Module> module)
+    {
         this->builder = builder;
         this->context = &this->builder->getContext();
         this->module = std::move(module);
@@ -49,14 +45,16 @@ public:
         define_built_in_functions();
     }
 
-    void define_built_in_functions() {
-        std::vector<llvm::Type*> arg(1, llvm::Type::getDoubleTy(*context));
+    void define_built_in_functions()
+    {
+        std::vector<llvm::Type *> arg(1, llvm::Type::getDoubleTy(*context));
 
         llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(*context), arg, false);
         llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "print", module.get());
     }
 
-    bool main_function_defined() {
+    bool main_function_defined()
+    {
         return main_function != nullptr;
     }
 
@@ -66,18 +64,73 @@ public:
         return std::move(module);
     }
 
-    void visit(AST::FunctionTable &n) {
-        std::vector<AST::Function*> functions = n.get_functions();
+    void visit(AST::If &n)
+    {
 
-        for(unsigned int i = 0; i < functions.size(); ++i)
-            functions[i]->accept(*this);
+        // Generate condition
+        if (n._condition == nullptr)
+            throw std::runtime_error("No condition?");
+        current_value = nullptr;
+        n._condition->accept(*this);
+        auto condition = current_value;
+
+        condition = builder->CreateFCmpONE(condition, llvm::ConstantFP::get(*context, llvm::APFloat(0.0)), "ifcond_double");
+
+        llvm::BasicBlock *then_block = llvm::BasicBlock::Create(*context, "then", current_function);
+        llvm::BasicBlock *else_block = llvm::BasicBlock::Create(*context, "else");
+        llvm::BasicBlock *merge = llvm::BasicBlock::Create(*context, "merge");
+
+        builder->CreateCondBr(condition, then_block, else_block);
+        builder->SetInsertPoint(then_block);
+
+        // Generate then block
+        if (n._then == nullptr)
+            throw std::runtime_error("No then Block?");
+        current_value = nullptr;
+        n._then->accept(*this);
+        auto then = current_value;
+
+        builder->CreateBr(merge);
+        then_block = builder->GetInsertBlock();
+
+        current_function->getBasicBlockList().push_back(else_block);
+        builder->SetInsertPoint(else_block);
+
+        // Generate else block
+        if (n._else == nullptr)
+            throw std::runtime_error("No else Block?");
+        current_value = nullptr;
+        n._else->accept(*this);
+        auto _else = current_value;
+
+        builder->CreateBr(merge);
+        else_block = builder->GetInsertBlock();
+
+        current_function->getBasicBlockList().push_back(merge);
+        builder->SetInsertPoint(merge);
+
+        //TODO: I dont get this PHINode thing - look it up sucker!
+        llvm::PHINode *pn = builder->CreatePHI(llvm::Type::getDoubleTy(*context), 2, "iftmp");
+        pn->addIncoming(then, then_block);
+        pn->addIncoming(_else, else_block);
+
+        current_value = pn;
+    }
+
+    void visit(AST::FunctionTable &n)
+    {
+        std::vector<AST::Function *> functions = n.get_functions();
+
+        for (auto &arg : functions)
+            arg->accept(*this);
     }
 
     void visit(AST::FunctionCall &n)
     {
         llvm::Function *called_fn = module->getFunction(n._function_name);
-        if (!called_fn) {
-            if(n._function_name != "print")
+        if (!called_fn)
+        {
+            if (n._function_name != "print")
                 throw std::runtime_error("Function '" + n._function_name + "' does not exist!");
         }
 
@@ -110,14 +163,14 @@ public:
         if (!fn->empty())
             throw std::runtime_error("Functions cannot be redefined!");
 
-
         llvm::BasicBlock *block = llvm::BasicBlock::Create(*context, "entry", fn);
         builder->SetInsertPoint(block);
-
 
         named_values.clear();
         for (auto &arg : fn->args())
             named_values[arg.getName()] = &arg;
+
+        current_function = fn; // we are done with the signature, we dont wait no longer because the following block might refer to us
 
         current_value = nullptr;
         n._body->accept(*this);
@@ -126,12 +179,12 @@ public:
 
         if (!ret_val)
             throw std::runtime_error("Could not generate body for function");
-        
-        if(fn_name == "main")
+
+        if (fn_name == "main")
             main_function = fn;
 
         builder->CreateRet(ret_val);
-        current_function = fn;
+        //llvm::verifyFunction(*fn);
     }
 
     void visit(AST::FunctionSignature &fs)

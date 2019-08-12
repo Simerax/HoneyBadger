@@ -61,6 +61,8 @@ Token::Type Lexer::get_type(std::string word)
 {
     if (word == ",")
         return Token::Type::SEPARATOR;
+    if (word == "if")
+        return Token::Type::IF;
     if (word == "def")
         return Token::Type::FUNCTION_DEFINITION;
     if (word == "let")

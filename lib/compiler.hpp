@@ -61,7 +61,7 @@ public:
         {
             Lexer lexer;
             Parser parser(lexer.lex(filecontent));
-            AST::FunctionTable *function_table = parser.parse();
+            function_table = parser.parse();
             cg.visit(*function_table);
             module = cg.get_result();
         }

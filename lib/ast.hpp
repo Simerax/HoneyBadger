@@ -18,6 +18,28 @@ namespace AST{
             virtual void accept(Visitor &v) = 0;
     };
 
+    class If : public Node {
+        public:
+            Node* _condition;
+            Node* _then; 
+            Node* _else; 
+
+            ~If() {
+                if(_condition != nullptr)
+                    delete _condition;
+                if(_then != nullptr)
+                    delete _then;
+                if(_else != nullptr)
+                    delete _else;
+            }
+
+            If(Node* condition, Node* then, Node* els) : _condition(condition), _then(then), _else(els) {}
+
+            void accept(Visitor &v) {
+                v.visit(*this);
+            }
+    };
+
     class Variable : public Node {
         private: 
             std::string _name;

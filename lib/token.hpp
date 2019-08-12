@@ -9,6 +9,7 @@ namespace HoneyBadger {
             IDENTIFIER,
             KEYWORD,
             EQUALS,
+            IF,
             BIN_OP,
             NUMBER,
             OPENING_PARENTHESIS,

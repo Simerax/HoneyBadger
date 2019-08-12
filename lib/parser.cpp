@@ -19,8 +19,9 @@ Parser::Parser(std::vector<Token> tokens)
 
 AST::FunctionTable *Parser::parse()
 {
-    AST::FunctionTable* functions = new AST::FunctionTable();
-    while(current_token().type != Token::Type::END_OF_FILE) {
+    AST::FunctionTable *functions = new AST::FunctionTable();
+    while (current_token().type != Token::Type::END_OF_FILE)
+    {
         functions->add_function(parse_function());
     }
     return functions;
@@ -38,9 +39,23 @@ AST::Node *Parser::parse_primary()
         return parse_function();
     case Token::Type::NUMBER:
         return parse_number_expression();
+    case Token::Type::IF:
+        return parse_if_expression();
     case Token::Type::OPENING_PARENTHESIS:
         return parse_parenthesis();
     }
+}
+
+AST::Node* Parser::parse_if_expression() {
+    expect("if");
+    auto condition = parse_expression();
+    expect("do");
+    auto then = parse_expression();
+    expect("else"); // every statement has to return a value so we cant allow if without an else
+    auto _else = parse_expression();
+    expect("end");
+
+    return new AST::If(condition, then, _else);
 }
 
 AST::Node *Parser::parse_binary_op_right_side(int expression_precedence, AST::Node *left)
@@ -103,7 +118,6 @@ AST::Node *Parser::parse_expression()
         return left;
     return parse_binary_op_right_side(0, left);
 }
-
 
 // we allow expressions outside of functions. to make this possible we just wrap the expression in a function with no arguments
 //AST::Function *Parser::parse_top_level_expression()
@@ -201,7 +215,7 @@ bool Parser::expect(std::string thing)
     else
     {
         auto location = current_token().location;
-        throw std::runtime_error("Unexpected Token '" + current_token().value + "' at " + location.to_string() + " should have been: '"+thing+"'");
+        throw std::runtime_error("Unexpected Token '" + current_token().value + "' at " + location.to_string() + " should have been: '" + thing + "'");
     }
     return false;
 }
