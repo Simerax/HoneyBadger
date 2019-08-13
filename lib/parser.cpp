@@ -1,5 +1,5 @@
 #include "parser.hpp"
-#include "Operators.hpp"
+#include "operators.hpp"
 #include "llvm/ADT/STLExtras.h"
 #include <exception>
 

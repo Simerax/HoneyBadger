@@ -2,7 +2,7 @@
 #include <regex>
 
 #include"precedence_table.hpp"
-#include"Operators.hpp"
+#include"operators.hpp"
 
 namespace HoneyBadger
 {
