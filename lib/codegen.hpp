@@ -16,7 +16,14 @@ namespace HoneyBadger
 {
 class CodeGenerator : public Visitor
 {
+    public:
+    struct Config 
+    {
+        bool debug;
+        Config() : debug(false) {}
+    };
 private:
+    //TODO: Change to ref
     llvm::LLVMContext *context;
     llvm::IRBuilder<> *builder;
     std::unique_ptr<llvm::Module> module;
@@ -27,21 +34,15 @@ private:
 
     llvm::Function *main_function = nullptr;
 
+    Config config;
+
 public:
-    CodeGenerator()
+    CodeGenerator(Config conf = Config{})
     {
+        this->config = conf;
         context = new llvm::LLVMContext();
         builder = new llvm::IRBuilder<>(*context);
         module = llvm::make_unique<llvm::Module>("MyModule", *context);
-        define_built_in_functions();
-    }
-
-    CodeGenerator(llvm::IRBuilder<> *builder, std::unique_ptr<llvm::Module> module)
-    {
-        this->builder = builder;
-        this->context = &this->builder->getContext();
-        this->module = std::move(module);
-
         define_built_in_functions();
     }
 
@@ -60,7 +61,15 @@ public:
 
     std::unique_ptr<llvm::Module> get_result()
     {
-        module->print(llvm::errs(), nullptr);
+        if(llvm::verifyModule(*module, &llvm::errs()))
+            throw std::runtime_error("Error in Module: " + module->getName().str());
+
+        if(config.debug) {
+            llvm::errs() << "Dumping Module: " << module->getName() << "\n";
+            module->print(llvm::errs(), nullptr);
+            llvm::errs() << "\nDone with dump of Module: " << module->getName() << "\n";
+        }
+            
         return std::move(module);
     }
 
@@ -184,7 +193,11 @@ public:
             main_function = fn;
 
         builder->CreateRet(ret_val);
-        //llvm::verifyFunction(*fn);
+
+        if(llvm::verifyFunction(*fn, &llvm::errs()))
+            throw std::runtime_error("Error in Function '"+fn_name+"' (Module: '"+module->getName().str()+"')");
+
+        llvm::verifyFunction(*fn);
     }
 
     void visit(AST::Block &n) {

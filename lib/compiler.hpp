@@ -18,6 +18,20 @@ namespace HoneyBadger
 {
 class Compiler
 {
+    public:
+
+    struct Config 
+    {
+        bool debug;
+        Config() : debug(false) {}
+
+        static CodeGenerator::Config convert_to_code_generator_config(Config c) {
+            CodeGenerator::Config cg_config;
+            cg_config.debug = c.debug;
+
+            return cg_config;
+        }
+    };
 private:
     std::string last_error;
 
@@ -40,10 +54,10 @@ private:
 
 public:
     std::string get_last_error() { return this->last_error; }
-    bool compile(std::string file)
+    bool compile(std::string file, Config conf = Config{})
     {
         Ref<AST::FunctionTable> function_table = nullptr;
-        CodeGenerator cg;
+        CodeGenerator cg(Config::convert_to_code_generator_config(conf));
         std::unique_ptr<llvm::Module> module;
 
         std::tuple<bool, std::string> result = read_file(file);

@@ -1,15 +1,13 @@
-def add(a,b) do
-    a + b
-end
 
-def funky_multiply(a,b) do
-    if a < 2 do
-        a + b
+def loop(x) do
+    if x < 1 do
+        0
     else
-        a * b
-        a * b + 2
+        print(x)
+        loop(x - 1)
     end
 end
+
 def main() do
-    print(funky_multiply(3,4) * 25)
+    loop(10)
 end
