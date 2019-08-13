@@ -1,7 +1,9 @@
 #pragma once
-#include "visitor.hpp"
-#include "ast.hpp"
-#include "string.hpp"
+#include "../visitor.hpp"
+#include "../ast.hpp"
+#include "../string.hpp"
+
+#include "optimizer.hpp"
 
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Type.h"
@@ -71,6 +73,7 @@ public:
             module->print(llvm::errs(), nullptr);
             llvm::errs() << "\nDone with dump of Module: " << module->getName() << "\n";
         }
+
             
         return std::move(module);
     }
@@ -120,7 +123,6 @@ public:
         current_function->getBasicBlockList().push_back(merge);
         builder->SetInsertPoint(merge);
 
-        //TODO: I dont get this PHINode thing - look it up sucker!
         llvm::PHINode *pn = builder->CreatePHI(llvm::Type::getDoubleTy(*context), 2, "iftmp");
         pn->addIncoming(then, then_block);
         pn->addIncoming(_else, else_block);

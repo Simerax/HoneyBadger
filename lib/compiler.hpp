@@ -4,13 +4,13 @@
 
 #include "lexer.hpp"
 #include "parser.hpp"
-#include "codegen.hpp"
+#include "llvm/codegen.hpp"
+#include "llvm/optimizer.hpp"
 #include "string.hpp"
 #include "ref.hpp"
 #include"llvm/Support/TargetSelect.h" // InitializeAllTargets etc.
 #include"llvm/Support/Host.h" // llvm::sys::getDefaultTargetTriple();
 #include"llvm/Support/TargetRegistry.h" // llvm::TargetRegistry::
-#include"llvm/IR/LegacyPassManager.h"
 #include"llvm/Target/TargetOptions.h"
 #include"llvm/Target/TargetMachine.h"
 #include"llvm/Support/FileSystem.h" // sys::fs::
@@ -123,16 +123,16 @@ public:
             return false;
         }
 
-        llvm::legacy::PassManager pass;
+        Optimizer optimizer;
 
         auto filetype = target_machine->CGFT_ObjectFile;
 
-        if(target_machine->addPassesToEmitFile(pass, dest, filetype)) {
+        if(target_machine->addPassesToEmitFile(optimizer, dest, filetype)) {
             last_error = "Target Machine cannot emit Code.";
             return false;
         }
 
-        pass.run(*module);
+        optimizer.run(*module);
         dest.flush();
         return true;
     }
