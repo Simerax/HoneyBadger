@@ -6,9 +6,10 @@
 
 namespace HoneyBadger
 {
-std::vector<Token> Lexer::lex(std::string input)
+std::vector<Token> Lexer::lex(std::string raw_input)
 {
     std::vector<Token> tokens;
+    this->input = raw_input;
 
     // in case the input has no EOL e.g newline we just add one for safety
     // the worst that could happen is that we parse two EOL...Oh well
@@ -19,13 +20,34 @@ std::vector<Token> Lexer::lex(std::string input)
     uint column = 1;
     uint word_line = line;
     uint word_column = column;
+    bool inside_comment = false;
 
-    for (uint index = 0; index < input.length(); ++index)
+    for (index = 0; index < input.length(); ++index)
     {
         char cc = input.at(index);
         column++;
 
-        if (is_delimiter(cc) || is_newline(cc) || is_operator(cc) || index + 1 == input.length())
+        // comments
+        if(!inside_comment && cc == '/' && peek('/'))
+        {
+            inside_comment = true;
+
+            // In case we get into a comment we still need to make sure to add the previous word to our tokens
+            // if the comment was separated by a space then this here wont apply since the word is already in the list of tokens
+            // however if we have something like this: a + b//comment
+            // then our word is "b" and we go inside_comment because the next two chars are "//".
+            // this means that our current word ("b") won't be stored
+            // for that reason we just add it here
+            if(word != "")
+            {
+                tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
+                word = "";
+                word_line = line;
+                word_column = column;
+            }
+        }
+
+        if (!inside_comment && (is_delimiter(cc) || is_newline(cc) || is_operator(cc) || index + 1 == input.length()))
         {
             if (word != "")
                 tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
@@ -48,13 +70,23 @@ std::vector<Token> Lexer::lex(std::string input)
         if (is_newline(cc))
         {
             line++;
+            word = "";
             column = 1;
             word_line = line;
             word_column = column;
+            inside_comment = false;
         }
     }
     tokens.push_back(Token("", Location(line, column), Token::Type::END_OF_FILE));
     return tokens;
+}
+
+/// peeks the next char and checks if its the same as 'expected'
+bool Lexer::peek(char expected) {
+    if(input.length() > index + 1)
+        if(input[index + 1] == expected)
+            return true;
+    return false;
 }
 
 Token::Type Lexer::get_type(std::string word)
