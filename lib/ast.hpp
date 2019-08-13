@@ -4,6 +4,7 @@
 #include"location.hpp"
 #include"visitor.hpp"
 #include"ref.hpp"
+#include "string.hpp"
 
 namespace HoneyBadger {
 
@@ -51,12 +52,12 @@ namespace AST{
     /// Keeps a Variable Name
     class Variable : public Node {
         private: 
-            std::string _name;
+            string _name;
 
         public:
-            Variable(std::string name) : _name(name) {}
-            std::string name() { return this->_name; }
-            void name(std::string name) { this->_name = name; }
+            Variable(string name) : _name(name) {}
+            string name() { return this->_name; }
+            void name(string name) { this->_name = name; }
             void accept(Visitor &v) {
                 v.visit(*this);
             };
@@ -93,9 +94,9 @@ namespace AST{
     /// Note: This is different then FunctionSignature!
     class FunctionCall : public Node {
         public:
-            std::string _function_name;
+            string _function_name;
             std::vector<Ref<Node>> _args;
-            FunctionCall(std::string name, std::vector<Ref<Node>> args) : _function_name(name), _args(args) {}
+            FunctionCall(string name, std::vector<Ref<Node>> args) : _function_name(name), _args(args) {}
             void accept(Visitor &v) {
                 v.visit(*this);
             };
@@ -108,12 +109,12 @@ namespace AST{
     /// A FunctionCall contains the actual expressions that define the values of the parameters
     class FunctionSignature : public Node {
         private:
-            std::string _name;
-            std::vector<std::string> _args;
+            string _name;
+            std::vector<string> _args;
         public:
-            FunctionSignature(std::string name, std::vector<std::string> args) : _name(name), _args(args) {}
-            const std::string &get_name() const { return _name; }
-            std::vector<std::string> &get_args() { return _args; }
+            FunctionSignature(string name, std::vector<string> args) : _name(name), _args(args) {}
+            const string &get_name() const { return _name; }
+            std::vector<string> &get_args() { return _args; }
             void accept(Visitor &v) {
                 v.visit(*this);
             };

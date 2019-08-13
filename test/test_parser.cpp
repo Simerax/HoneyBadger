@@ -11,7 +11,7 @@ using namespace fakeit;
 
 TEST_CASE("Multiple Expressions in a block", "[Parser]")
 {
-    std::string input = 
+    string input = 
     "def func(a,b) do\n"
     "   if a < b do\n"
     "       a + b\n"
@@ -52,7 +52,7 @@ TEST_CASE("Parser Tests", "[Parser]")
         //    REQUIRE(n._signature->get_name() == "func");
         //});
 
-        //std::string input =
+        //string input =
         //    "def func(a,b) do\n"
         //    "   a+b\n"
         //    "end\n"

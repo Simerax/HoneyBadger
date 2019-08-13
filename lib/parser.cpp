@@ -81,12 +81,12 @@ Ref<AST::Node> Parser::parse_binary_op_right_side(int expression_precedence, Ref
 Ref<AST::FunctionSignature> Parser::parse_function_signature()
 {
     // we basically just read whatever there is as function name and then we test if its actually the function name (e.g. a identifier)
-    std::string function_name = current_token().value;
+    string function_name = current_token().value;
     expect(Token::Type::IDENTIFIER);
 
     expect("(");
 
-    std::vector<std::string> args;
+    std::vector<string> args;
     while (current_token().type == Token::Type::IDENTIFIER)
     {
         args.push_back(current_token().value);
@@ -120,7 +120,7 @@ Ref<AST::Node> Parser::parse_expression()
 //AST::Function *Parser::parse_top_level_expression()
 //{
 //    auto body = parse_expression();
-//    auto signature = new AST::FunctionSignature("__TOP_LEVEL__", std::vector<std::string>());
+//    auto signature = new AST::FunctionSignature("__TOP_LEVEL__", std::vector<string>());
 //    return new AST::Function(signature, body);
 //}
 
@@ -145,7 +145,7 @@ Ref<AST::Node> Parser::parse_parenthesis()
 // ::= identifier '(' expression ')'
 Ref<AST::Node> Parser::parse_identifier_expression()
 {
-    std::string id = current_token().value;
+    string id = current_token().value;
     next_token();
 
     // variable
@@ -202,7 +202,7 @@ bool Parser::expect(int thing)
     return false;
 }
 
-bool Parser::expect(std::string thing)
+bool Parser::expect(string thing)
 {
     if (current_token().value == thing)
     {
@@ -217,7 +217,7 @@ bool Parser::expect(std::string thing)
     return false;
 }
 
-bool Parser::accept(std::string thing)
+bool Parser::accept(string thing)
 {
     if (current_token().value != thing)
         return false;

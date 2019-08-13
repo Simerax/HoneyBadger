@@ -5,6 +5,7 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "codegen.hpp"
+#include "string.hpp"
 #include "ref.hpp"
 #include"llvm/Support/TargetSelect.h" // InitializeAllTargets etc.
 #include"llvm/Support/Host.h" // llvm::sys::getDefaultTargetTriple();
@@ -33,15 +34,15 @@ class Compiler
         }
     };
 private:
-    std::string last_error;
+    string last_error;
 
 
-    std::tuple<bool, std::string> read_file(std::string path) {
+    std::tuple<bool, string> read_file(string path) {
         std::ifstream input(path);
-        std::string content, line;
+        string content, line;
         if(!input.is_open()) {
             last_error = "Could not open file '"+path+"' reason: "+strerror(errno);
-            return std::tuple<bool,std::string>(false, "");
+            return std::tuple<bool,string>(false, "");
         }
 
 
@@ -49,20 +50,20 @@ private:
             content += line+"\n";
         input.close();
 
-        return std::tuple<bool,std::string>(true, content);
+        return std::tuple<bool,string>(true, content);
     }
 
 public:
-    std::string get_last_error() { return this->last_error; }
-    bool compile(std::string file, Config conf = Config{})
+    string get_last_error() { return this->last_error; }
+    bool compile(string file, Config conf = Config{})
     {
         Ref<AST::FunctionTable> function_table = nullptr;
         CodeGenerator cg(Config::convert_to_code_generator_config(conf));
         std::unique_ptr<llvm::Module> module;
 
-        std::tuple<bool, std::string> result = read_file(file);
+        std::tuple<bool, string> result = read_file(file);
         bool ok = std::get<0>(result);
-        std::string filecontent = std::get<1>(result);
+        string filecontent = std::get<1>(result);
         if(!ok)
             return false;
 
@@ -95,7 +96,7 @@ public:
         auto target_triple = llvm::sys::getDefaultTargetTriple();
         init_llvm_target_settings();
 
-        std::string target_registry_error;
+        string target_registry_error;
         auto target = llvm::TargetRegistry::lookupTarget(target_triple, target_registry_error);
 
         if(!target) {

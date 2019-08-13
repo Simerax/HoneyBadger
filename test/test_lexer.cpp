@@ -5,7 +5,7 @@ using namespace HoneyBadger;
 
 TEST_CASE("lex variable definition", "[Lexer]")
 {
-    std::string input = "let x = 5 //test comment";
+    string input = "let x = 5 //test comment";
 
     Lexer l;
     std::vector<Token> tokens = l.lex(input);
@@ -21,7 +21,7 @@ TEST_CASE("lex variable definition", "[Lexer]")
 
 TEST_CASE("lex simple comment", "[Lexer]")
 {
-    std::string input = 
+    string input = 
     "//comment in first line\n"
     "//comment in second line with a // inside\n"
     "def func(a,b) do//comment\n"
@@ -71,7 +71,7 @@ TEST_CASE("lex simple comment", "[Lexer]")
 
 TEST_CASE("lex if statement", "[Lexer]")
 {
-    std::string input = "if x > 3 do\nprint x\nend";
+    string input = "if x > 3 do\nprint x\nend";
 
     Lexer l;
     std::vector<Token> tokens = l.lex(input);
@@ -94,7 +94,7 @@ TEST_CASE("lex if statement", "[Lexer]")
 
 TEST_CASE("lex function definition", "[Lexer]")
 {
-    std::string input = "def func(a, b) do\na + b\nend";
+    string input = "def func(a, b) do\na + b\nend";
     Lexer l;
     auto tokens = l.lex(input);
 
@@ -149,7 +149,7 @@ TEST_CASE("lex function definition", "[Lexer]")
 
 TEST_CASE("function call followed by function definition", "[Lexer]")
 {
-    std::string input =
+    string input =
         "func(2.5, 5.0)\n"
         "// a comment in the middle\n"
         "def func(x, y) do\n"
@@ -235,7 +235,7 @@ TEST_CASE("function call followed by function definition", "[Lexer]")
 
 TEST_CASE("lex if expression", "[Lexer]")
 {
-    std::string input =
+    string input =
     "if 3 < 2 do\n"
     "   25\n"
     "end"

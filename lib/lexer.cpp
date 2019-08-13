@@ -6,7 +6,7 @@
 
 namespace HoneyBadger
 {
-std::vector<Token> Lexer::lex(std::string raw_input)
+std::vector<Token> Lexer::lex(string raw_input)
 {
     std::vector<Token> tokens;
     this->input = raw_input;
@@ -15,7 +15,7 @@ std::vector<Token> Lexer::lex(std::string raw_input)
     // the worst that could happen is that we parse two EOL...Oh well
     input += "\n";
 
-    std::string word = "";
+    string word = "";
     uint line = 1;
     uint column = 1;
     uint word_line = line;
@@ -52,12 +52,12 @@ std::vector<Token> Lexer::lex(std::string raw_input)
             if (word != "")
                 tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
 
-            Token::Type t = get_type(std::string(1, cc));
+            Token::Type t = get_type(string(1, cc));
 
             // in case the delimiter was a special char we add that one to the tokens
             if (is_operator(cc) || t == Token::Type::SEPARATOR || t == Token::Type::OPENING_PARENTHESIS || t == Token::Type::CLOSING_PARENTHESIS)
             {
-                tokens.push_back(Token(std::string(1, cc), Location(line, column - 1), t));
+                tokens.push_back(Token(string(1, cc), Location(line, column - 1), t));
             }
 
             word = "";
@@ -89,7 +89,7 @@ bool Lexer::peek(char expected) {
     return false;
 }
 
-Token::Type Lexer::get_type(std::string word)
+Token::Type Lexer::get_type(string word)
 {
     if (word == ",")
         return Token::Type::SEPARATOR;
@@ -116,7 +116,7 @@ Token::Type Lexer::get_type(std::string word)
     return Token::Type::IDENTIFIER;
 }
 
-bool Lexer::looks_like_number(std::string str)
+bool Lexer::looks_like_number(string str)
 {
     std::regex rx("(^[+-]?\\d+$)|(^([+-]?)(?=\\d|\\.\\d)\\d*(\\.\\d*)?([Ee]([+-]?\\d+))?$)$");
     if (std::regex_match(str, rx))

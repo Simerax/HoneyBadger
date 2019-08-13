@@ -1,6 +1,7 @@
 #pragma once
 #include "visitor.hpp"
 #include "ast.hpp"
+#include "string.hpp"
 
 #include "llvm/IR/Value.h"
 #include "llvm/IR/Type.h"
@@ -20,14 +21,15 @@ class CodeGenerator : public Visitor
     struct Config 
     {
         bool debug;
-        Config() : debug(false) {}
+        string module_name;
+        Config() : debug(false), module_name("") {}
     };
 private:
     //TODO: Change to ref
     llvm::LLVMContext *context;
     llvm::IRBuilder<> *builder;
     std::unique_ptr<llvm::Module> module;
-    std::map<std::string, llvm::Value *> named_values;
+    std::map<string, llvm::Value *> named_values;
 
     llvm::Value *current_value = nullptr;
     llvm::Function *current_function = nullptr;
@@ -159,7 +161,7 @@ public:
 
     void visit(AST::Function &n)
     {
-        std::string fn_name = n._signature->get_name();
+        string fn_name = n._signature->get_name();
         llvm::Function *fn = module->getFunction(fn_name);
 
         if (!fn)

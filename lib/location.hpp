@@ -1,6 +1,7 @@
 #pragma once
 #include<string>
 #include"honey_badger.hpp"
+#include "string.hpp"
 
 namespace HoneyBadger {
 
@@ -11,6 +12,6 @@ namespace HoneyBadger {
         Location();
         Location(uint line, uint column);
         bool operator==(const Location &other) const;
-        std::string to_string() const;
+        string to_string() const;
     };
 }

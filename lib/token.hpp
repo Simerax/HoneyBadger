@@ -19,11 +19,11 @@ namespace HoneyBadger {
             SEPARATOR,
             END_OF_FILE,
         };
-        std::string value;
+        string value;
         Location location;
         Type type;
 
-        Token(std::string value, Location location, Type type = UNKNOWN){
+        Token(string value, Location location, Type type = UNKNOWN){
             this->value = value;
             this->location = location;
             this->type = type;

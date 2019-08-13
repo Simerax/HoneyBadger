@@ -4,6 +4,7 @@
 #include"token.hpp"
 #include"ast.hpp"
 #include"ref.hpp"
+#include "string.hpp"
 
 namespace HoneyBadger{
     class Parser {
@@ -15,8 +16,8 @@ namespace HoneyBadger{
             int current_token_precedence();
             Token current_token();
             void next_token();
-            bool accept(std::string thing);
-            bool expect(std::string thing);
+            bool accept(string thing);
+            bool expect(string thing);
             bool expect(int thing);
 
             Ref<AST::FunctionSignature> parse_function_signature();
