@@ -302,6 +302,10 @@ public:
             current_value = builder->CreateFCmpULT(left, right, "cmptmp");
             current_value = builder->CreateUIToFP(current_value, llvm::Type::getDoubleTy(*context), "booltmp");
             break;
+        case '>':
+            current_value = builder->CreateFCmpULT(right, left, "cmptmp");
+            current_value = builder->CreateUIToFP(current_value, llvm::Type::getDoubleTy(*context), "booltmp");
+            break;
         default:
             throw std::runtime_error("Operator '" + std::to_string(n._op) + "' not supported");
         }

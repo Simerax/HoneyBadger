@@ -12,6 +12,8 @@ namespace HoneyBadger {
             return PrecedenceTable::ASSIGN;
         if(op == '<')
             return PrecedenceTable::LESS;
+        if(op == '>')
+            return PrecedenceTable::GREATER;
         if(op == '+')
             return PrecedenceTable::PLUS;
         if(op == '-')
