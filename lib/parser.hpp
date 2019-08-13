@@ -30,6 +30,7 @@ namespace HoneyBadger{
             Ref<AST::Node> parse_primary(); 
             Ref<AST::Node> parse_expression(); 
             Ref<AST::Node> parse_if_expression();
+            Ref<AST::Node> parse_variable_definition();
             Ref<AST::Node> parse_binary_op_right_side(int expression_precedence, Ref<AST::Node> left); 
         public:
             Ref<AST::FunctionTable> parse(std::vector<Token> tokens);

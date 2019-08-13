@@ -63,6 +63,16 @@ namespace AST{
             };
     };
 
+    class VariableDefinition : public Node
+    {
+        public:
+            Ref<Variable> variable;
+            Ref<Node> value;
+            VariableDefinition(Ref<Variable> var, Ref<Node> val) : variable(var), value(val) {}
+            void accept(Visitor &v) { v.visit(*this); }
+    };
+
+
     /// Keeps the Value of a Number
     class Number : public Node {
         private:

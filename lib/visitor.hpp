@@ -13,6 +13,7 @@ namespace HoneyBadger {
         class FunctionTable;
         class If;
         class Block;
+        class VariableDefinition;
     }
 
     class Visitor{
@@ -27,5 +28,6 @@ namespace HoneyBadger {
         virtual void visit(AST::FunctionTable &n) = 0;
         virtual void visit(AST::If &n) = 0;
         virtual void visit(AST::Block &n) = 0;
+        virtual void visit(AST::VariableDefinition &n) = 0;
     };
 }

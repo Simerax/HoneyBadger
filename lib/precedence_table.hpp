@@ -4,6 +4,7 @@ namespace HoneyBadger {
 
     // lowest number => lowest precedence
     enum PrecedenceTable {
+        ASSIGN = 2,
         LESS = 10,
         PLUS = 20,
         MINUS = 20,

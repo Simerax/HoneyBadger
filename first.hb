@@ -23,6 +23,10 @@ end
 
 // every programm needs a main, as you expected this is the entrypoint for the programm
 def main() do
-    print(fib(22))
-    loop(1000000)
+    //#print(fib(22))
+    //#loop(1000000)
+    let x = 25
+    print(x)
+    let y = x + 25
+    print(y)
 end

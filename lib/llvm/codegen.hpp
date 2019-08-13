@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "../visitor.hpp"
 #include "../ast.hpp"
 #include "../string.hpp"
@@ -14,24 +15,24 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Verifier.h" // verifyFunction
 
-
 namespace HoneyBadger
 {
 class CodeGenerator : public Visitor
 {
-    public:
-    struct Config 
+public:
+    struct Config
     {
         bool debug;
         string module_name;
         Config() : debug(false), module_name("") {}
     };
+
 private:
     //TODO: Change to ref
     llvm::LLVMContext *context;
     llvm::IRBuilder<> *builder;
     std::unique_ptr<llvm::Module> module;
-    std::map<string, llvm::Value *> named_values;
+    std::map<string, llvm::AllocaInst *> named_values;
 
     llvm::Value *current_value = nullptr;
     llvm::Function *current_function = nullptr;
@@ -63,18 +64,27 @@ public:
         return main_function != nullptr;
     }
 
+    llvm::AllocaInst *create_entry_block_alloca(string name, string type = "double", llvm::Function *function = nullptr)
+    {
+        if (!function)
+            function = current_function;
+
+        llvm::IRBuilder<> tmp_builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+        return tmp_builder.CreateAlloca(llvm::Type::getDoubleTy(*context), 0, name.c_str());
+    }
+
     std::unique_ptr<llvm::Module> get_result()
     {
-        if(llvm::verifyModule(*module, &llvm::errs()))
+        if (llvm::verifyModule(*module, &llvm::errs()))
             throw std::runtime_error("Error in Module: " + module->getName().str());
 
-        if(config.debug) {
+        if (config.debug)
+        {
             llvm::errs() << "Dumping Module: " << module->getName() << "\n";
             module->print(llvm::errs(), nullptr);
             llvm::errs() << "\nDone with dump of Module: " << module->getName() << "\n";
         }
 
-            
         return std::move(module);
     }
 
@@ -179,11 +189,15 @@ public:
         llvm::BasicBlock *block = llvm::BasicBlock::Create(*context, "entry", fn);
         builder->SetInsertPoint(block);
 
+        current_function = fn; // the signature might already need some information about the function so we gotta set it before
+
         named_values.clear();
         for (auto &arg : fn->args())
-            named_values[arg.getName()] = &arg;
-
-        current_function = fn; // we are done with the signature, we dont wait no longer because the following block might refer to us
+        {
+            llvm::AllocaInst *alloca = create_entry_block_alloca(arg.getName());
+            builder->CreateStore(&arg, alloca);
+            named_values[arg.getName()] = alloca;
+        }
 
         current_value = nullptr;
         n._body->accept(*this);
@@ -198,14 +212,15 @@ public:
 
         builder->CreateRet(ret_val);
 
-        if(llvm::verifyFunction(*fn, &llvm::errs()))
-            throw std::runtime_error("Error in Function '"+fn_name+"' (Module: '"+module->getName().str()+"')");
+        if (llvm::verifyFunction(*fn, &llvm::errs()))
+            throw std::runtime_error("Error in Function '" + fn_name + "' (Module: '" + module->getName().str() + "')");
 
         llvm::verifyFunction(*fn);
     }
 
-    void visit(AST::Block &n) {
-        for(auto &expr : n.get_expressions())
+    void visit(AST::Block &n)
+    {
+        for (auto &expr : n.get_expressions())
             expr->accept(*this);
     }
 
@@ -238,7 +253,26 @@ public:
         if (!var)
             throw std::runtime_error("Unknown Variable '" + n.name() + "'");
 
-        current_value = var;
+        current_value = builder->CreateLoad(var, n.name());
+    }
+
+    void visit(AST::VariableDefinition &n)
+    {
+        string variable_name = n.variable.get()->name();
+        auto search = named_values.find(variable_name);
+
+        if (search != named_values.end())
+            throw std::runtime_error("Cannot redefine Variable '" + variable_name + "'");
+
+        auto *variable = create_entry_block_alloca(variable_name);
+        named_values[variable_name] = variable;
+
+        current_value = nullptr;
+        n.value->accept(*this);
+        auto value = current_value;
+
+        builder->CreateStore(value, variable);
+        current_value = value;
     }
 
     void visit(AST::BinaryExpr &n)

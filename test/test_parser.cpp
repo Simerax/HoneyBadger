@@ -11,17 +11,17 @@ using namespace fakeit;
 
 TEST_CASE("Multiple Expressions in a block", "[Parser]")
 {
-    string input = 
-    "def func(a,b) do\n"
-    "   if a < b do\n"
-    "       a + b\n"
-    "       a + b * 2\n"
-    "   else\n"
-    "       a - b\n"
-    "       a + b * 2\n"
-    "   end\n"
-    "end"
-    "";
+    string input =
+        "def func(a,b) do\n"
+        "   if a < b do\n"
+        "       a + b\n"
+        "       a + b * 2\n"
+        "   else\n"
+        "       a - b\n"
+        "       a + b * 2\n"
+        "   end\n"
+        "end"
+        "";
 
     auto tokens = Lexer().lex(input);
     Parser p;
@@ -40,8 +40,6 @@ TEST_CASE("Parser Tests", "[Parser]")
     // When(OverloadedMethod(mock_visitor, visit, void(AST::FunctionSignature&))).AlwaysDo([mock_visitor](AST::FunctionSignature& n){});
     // When(OverloadedMethod(mock_visitor, visit, void(AST::Function&))).AlwaysDo([mock_visitor](AST::Function& n){});
     // When(OverloadedMethod(mock_visitor, visit, void(AST::FunctionTable&))).AlwaysDo([mock_visitor](AST::FunctionTable& n){});
-
-
 
     SECTION("parse function definition")
     {

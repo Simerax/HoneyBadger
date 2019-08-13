@@ -6,7 +6,6 @@
 namespace HoneyBadger
 {
 
-
 Ref<AST::FunctionTable> Parser::parse(std::vector<Token> tokens)
 {
     this->tokens = tokens;
@@ -30,10 +29,23 @@ Ref<AST::Node> Parser::parse_primary()
         return parse_if_expression();
     case Token::Type::OPENING_PARENTHESIS:
         return parse_parenthesis();
+    case Token::Type::VARIABLE_DEFINITION:
+        return parse_variable_definition();
     }
 }
 
-Ref<AST::Node> Parser::parse_if_expression() {
+Ref<AST::Node> Parser::parse_variable_definition()
+{
+    expect("let");
+    auto variable = std::make_shared<AST::Variable>(current_token().value);
+    next_token(); // eat the variable name
+    expect("=");
+    auto value = parse_expression();
+    return std::make_shared<AST::VariableDefinition>(variable, value);
+}
+
+Ref<AST::Node> Parser::parse_if_expression()
+{
     expect("if");
     Ref<AST::Node> condition = parse_expression();
     expect("do");
@@ -47,9 +59,11 @@ Ref<AST::Node> Parser::parse_if_expression() {
     return std::make_shared<AST::If>(condition, then, _else);
 }
 
-Ref<AST::Block> Parser::parse_block() {
+Ref<AST::Block> Parser::parse_block()
+{
     auto block = std::make_shared<AST::Block>();
-    while((!inside_if_then_block && current_token().value != "end") || (inside_if_then_block && current_token().value != "else")) {
+    while ((!inside_if_then_block && current_token().value != "end") || (inside_if_then_block && current_token().value != "else"))
+    {
         block->add_expression(parse_expression());
     }
     return block;
@@ -62,9 +76,12 @@ Ref<AST::Node> Parser::parse_binary_op_right_side(int expression_precedence, Ref
         int token_precedence = current_token_precedence();
         if (token_precedence < expression_precedence)
             return left;
-
+        
         Token bin_op = current_token();
         next_token(); // 'eat' the bin_op
+
+        if(bin_op.value == "=")
+            throw std::runtime_error("You cannot re-assign a variable.");
 
         // parse expression after operator
         auto right = parse_primary();

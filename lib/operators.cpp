@@ -8,6 +8,8 @@ namespace HoneyBadger {
     }
 
     int Operators::get_precedence(char op) {
+        if(op == '=')
+            return PrecedenceTable::ASSIGN;
         if(op == '<')
             return PrecedenceTable::LESS;
         if(op == '+')
