@@ -8,7 +8,7 @@ namespace HoneyBadger {
             UNKNOWN,
             IDENTIFIER,
             KEYWORD,
-            EQUALS,
+            ASSIGN,
             IF,
             BIN_OP,
             NUMBER,
@@ -17,6 +17,7 @@ namespace HoneyBadger {
             FUNCTION_DEFINITION,
             VARIABLE_DEFINITION,
             SEPARATOR,
+            STRING_LITERAL,
             END_OF_FILE,
         };
         string value;

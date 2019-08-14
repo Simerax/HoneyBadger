@@ -21,6 +21,7 @@ std::vector<Token> Lexer::lex(string raw_input)
     uint word_line = line;
     uint word_column = column;
     bool inside_comment = false;
+    bool inside_string_literal = false;
 
     for (index = 0; index < input.length(); ++index)
     {
@@ -47,7 +48,19 @@ std::vector<Token> Lexer::lex(string raw_input)
             }
         }
 
-        if (!inside_comment && (is_delimiter(cc) || is_newline(cc) || is_operator(cc) || index + 1 == input.length()))
+
+        if(cc == '"')
+        {
+            if(!inside_string_literal)
+                inside_string_literal = true;
+            else
+            {
+                inside_string_literal = false;
+                tokens.push_back(Token(word, Location(word_line, word_column), Token::Type::STRING_LITERAL));
+                word = "";
+            }
+        }
+        else if (!inside_string_literal && !inside_comment && (is_delimiter(cc) || is_newline(cc) || is_operator(cc) || index + 1 == input.length()))
         {
             if (word != "")
                 tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
@@ -70,11 +83,12 @@ std::vector<Token> Lexer::lex(string raw_input)
         if (is_newline(cc))
         {
             line++;
-            word = "";
             column = 1;
             word_line = line;
             word_column = column;
             inside_comment = false;
+            if(!inside_string_literal) // A string literal could be multi line
+                word = "";
         }
     }
     tokens.push_back(Token("", Location(line, column), Token::Type::END_OF_FILE));
@@ -100,7 +114,7 @@ Token::Type Lexer::get_type(string word)
     if (word == "let")
         return Token::Type::VARIABLE_DEFINITION;
     if (word == "=")
-        return Token::Type::EQUALS;
+        return Token::Type::ASSIGN;
     if (word == "(")
         return Token::Type::OPENING_PARENTHESIS;
     if (word == ")")
