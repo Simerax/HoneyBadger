@@ -49,7 +49,7 @@ std::vector<Token> Lexer::lex(string raw_input)
         }
 
 
-        if(cc == '"')
+        if(cc == '"' && !last('\\'))
         {
             if(!inside_string_literal)
                 inside_string_literal = true;
@@ -95,6 +95,15 @@ std::vector<Token> Lexer::lex(string raw_input)
     }
     tokens.push_back(Token("", Location(line, column), Token::Type::END_OF_FILE));
     return tokens;
+}
+
+/// checks if the last char is the same as 'expected'
+bool Lexer::last(char expected)
+{
+    if(index > 0 && input.length() > index - 1)
+        if(input[index - 1] == expected)
+            return true;
+    return false;
 }
 
 /// peeks the next char and checks if its the same as 'expected'

@@ -12,6 +12,7 @@ namespace HoneyBadger {
 
             bool is_delimiter(char c);
             bool is_newline(char c);
+            bool last(char c);
             Token::Type get_type(string thing);
             bool looks_like_number(string thing);
             bool is_operator(char op);
