@@ -224,13 +224,32 @@ public:
             expr->accept(*this);
     }
 
+
+    llvm::Type* convert_honey_badger_type_to_llvm_type(Type t)
+    {
+        if(t.type == Type::F64)
+            return llvm::Type::getDoubleTy(*context);
+        //if(t.type == Type::String)
+
+        throw std::runtime_error("cant convert HoneyBadger Type to LLVM Type!");
+    }
+
     void visit(AST::FunctionSignature &fs)
     {
-        //TODO: types right now we only have doubles so everything is a double
-        auto args = fs.get_args();
-        std::vector<llvm::Type *> Doubles(args.size(), llvm::Type::getDoubleTy(*context));
 
-        llvm::FunctionType *ft = llvm::FunctionType::get(llvm::Type::getDoubleTy(*context), Doubles, false);
+        // convert arguments to llvm::Type
+        auto args = fs.get_args();
+        std::vector<llvm::Type*> llvm_args;
+        for(auto &arg : args)
+        {
+            llvm::Type* llvm_type = convert_honey_badger_type_to_llvm_type(arg.type.type);
+            llvm_args.push_back(llvm_type);
+        }
+
+
+        auto return_type = convert_honey_badger_type_to_llvm_type(fs.get_return_type());
+        // create function signature
+        llvm::FunctionType *ft = llvm::FunctionType::get(return_type, llvm_args, false);
         llvm::Function *f = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, fs.get_name(), module.get());
         current_function = f;
 
@@ -238,7 +257,7 @@ public:
         for (auto &arg : f->args())
         {
             auto name = args[index++];
-            arg.setName(name);
+            arg.setName(name.name);
         }
     }
 

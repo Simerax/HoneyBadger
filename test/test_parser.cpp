@@ -12,7 +12,7 @@ using namespace fakeit;
 TEST_CASE("Multiple Expressions in a block", "[Parser]")
 {
     string input =
-        "def func(a,b) do\n"
+        "def func(a : F64 ,b:F64) : F64 do\n"
         "   if a < b do\n"
         "       a + b\n"
         "       a + b * 2\n"

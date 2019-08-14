@@ -103,17 +103,24 @@ Ref<AST::FunctionSignature> Parser::parse_function_signature()
 
     expect("(");
 
-    std::vector<string> args;
+    std::vector<AST::Argument> args;
     while (current_token().type == Token::Type::IDENTIFIER)
     {
-        args.push_back(current_token().value);
+        auto argument_name = current_token().value;
         next_token(); // eat the argument name
+        expect(":");
+        auto argument_type = current_token();
+        next_token(); // eat the argument type
+        args.push_back(AST::Argument::make_argument(argument_name, argument_type));
         accept(",");  // maybe comma seperated arguments?
     }
     expect(")");
+    expect(":");
+    Type return_type = Type::convert_token_type_to_type(current_token().type);
+    next_token(); // eat the return type token
     expect("do");
 
-    return std::make_shared<AST::FunctionSignature>(function_name, args);
+    return std::make_shared<AST::FunctionSignature>(function_name, args, return_type);
 }
 
 Ref<AST::Function> Parser::parse_function()

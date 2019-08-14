@@ -2,7 +2,7 @@
 
 
 // fibonacci numbers
-def fib(x) do
+def fib(x:F64) : F64 do
     if x < 2 do
         x
     else
@@ -11,7 +11,7 @@ def fib(x) do
 end
 
 // we dont have loops its recursive!
-def loop(x) do
+def loop(x:F64) : F64 do
     if x < 1 do
         0
     else
@@ -22,9 +22,9 @@ end
 
 
 // every programm needs a main, as you expected this is the entrypoint for the programm
-def main() do
+def main() : F64 do
     //#print(fib(22))
-    //#loop(1000000)
+    loop(1000000)
     let x = 25
     print(x)
     let y = x + 25

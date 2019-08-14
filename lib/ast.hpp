@@ -5,16 +5,15 @@
 #include"visitor.hpp"
 #include"ref.hpp"
 #include "string.hpp"
+#include "type.hpp"
 
 namespace HoneyBadger {
 
 namespace AST{
 
     class Node {
-        private:
-            Location begin;
-            Location end;
         public:
+            Location location;
             Node() = default;
             virtual ~Node() {}
             virtual void accept(Visitor &v) = 0;
@@ -112,6 +111,21 @@ namespace AST{
             };
     };
 
+    class Argument : public Node 
+    {
+        public:
+            string name;
+            Type type;
+            Argument(string name, Type type, Location loc) : name(name), type(type){
+                this->location = loc;
+            }
+            void accept(Visitor &v) { v.visit(*this); }
+        static Argument make_argument(string name, Token from)
+        {
+            return Argument(name, Type::convert_token_type_to_type(from.type), from.location);
+        }
+    };
+
     /// Keeps the name of a function and its arguments(signature)
     ///
     /// Does not contain the functions return value. At the moment Functions return the result of their last expression
@@ -120,11 +134,13 @@ namespace AST{
     class FunctionSignature : public Node {
         private:
             string _name;
-            std::vector<string> _args;
+            std::vector<Argument> _args;
+            Type return_type;
         public:
-            FunctionSignature(string name, std::vector<string> args) : _name(name), _args(args) {}
+            FunctionSignature(string name, std::vector<Argument> args, Type return_type) : _name(name), _args(args), return_type(return_type) {}
             const string &get_name() const { return _name; }
-            std::vector<string> &get_args() { return _args; }
+            Type get_return_type() { return return_type; }
+            std::vector<Argument> &get_args() { return _args; }
             void accept(Visitor &v) {
                 v.visit(*this);
             };
