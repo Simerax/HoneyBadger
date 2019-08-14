@@ -63,12 +63,22 @@ std::vector<Token> Lexer::lex(string raw_input)
         else if (!inside_string_literal && !inside_comment && (is_delimiter(cc) || is_newline(cc) || is_operator(cc) || index + 1 == input.length()))
         {
             if (word != "")
-                tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
+            {
+                if(is_type(word))
+                {
+                    auto type = get_type(word);
+                    tokens.push_back(Token(word, Location(word_line, word_column), type));
+                }
+                else
+                {
+                    tokens.push_back(Token(word, Location(word_line, word_column), get_type(word)));
+                }
+            }
 
             Token::Type t = get_type(string(1, cc));
 
             // in case the delimiter was a special char we add that one to the tokens
-            if (is_operator(cc) || t == Token::Type::SEPARATOR || t == Token::Type::OPENING_PARENTHESIS || t == Token::Type::CLOSING_PARENTHESIS)
+            if (is_operator(cc) || t == Token::Type::SEPARATOR || t == Token::Type::OPENING_PARENTHESIS || t == Token::Type::CLOSING_PARENTHESIS || t == Token::Type::TYPE_SPECIFIER)
             {
                 tokens.push_back(Token(string(1, cc), Location(line, column - 1), t));
             }
@@ -114,8 +124,19 @@ bool Lexer::peek(char expected) {
     return false;
 }
 
+bool Lexer::is_type(string word)
+{
+    return word == "F64" || word == "String";
+}
+
 Token::Type Lexer::get_type(string word)
 {
+    if (word == ":")
+        return Token::Type::TYPE_SPECIFIER;
+    if (word == "F64")
+        return Token::Type::TYPE_FLOAT_64;
+    if (word == "String")
+        return Token::Type::TYPE_STRING;
     if (word == ",")
         return Token::Type::SEPARATOR;
     if (word == "if")
@@ -151,7 +172,7 @@ bool Lexer::looks_like_number(string str)
 
 bool Lexer::is_delimiter(char c)
 {
-    return c == ' ' || c == '(' || c == ')' || c == ',';
+    return c == ' ' || c == '(' || c == ')' || c == ',' || c == ':';
 }
 
 bool Lexer::is_newline(char c)

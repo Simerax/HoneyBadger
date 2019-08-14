@@ -428,3 +428,74 @@ TEST_CASE("string literal escape", "[Lexer,String]")
     REQUIRE(tokens.at(7).location == Location(2,9));
     REQUIRE(tokens.at(7).type == Token::Type::NUMBER);
 }
+
+TEST_CASE("lex function with types", "[Lexer,Types]")
+{
+    string input =
+    "def func(a:F64, b : String) : String do\n"
+    "end"
+    "";
+
+    Lexer l;
+    auto tokens = l.lex(input);
+
+    REQUIRE(tokens.at(0).value == "def");
+    REQUIRE(tokens.at(0).location == Location(1,1));
+    REQUIRE(tokens.at(0).type == Token::Type::FUNCTION_DEFINITION);
+
+    REQUIRE(tokens.at(1).value == "func");
+    REQUIRE(tokens.at(1).location == Location(1,5));
+    REQUIRE(tokens.at(1).type == Token::Type::IDENTIFIER);
+
+    REQUIRE(tokens.at(2).value == "(");
+    REQUIRE(tokens.at(2).location == Location(1,9));
+    REQUIRE(tokens.at(2).type == Token::Type::OPENING_PARENTHESIS);
+
+    REQUIRE(tokens.at(3).value == "a");
+    REQUIRE(tokens.at(3).location == Location(1,10));
+    REQUIRE(tokens.at(3).type == Token::Type::IDENTIFIER);
+
+    REQUIRE(tokens.at(4).value == ":");
+    REQUIRE(tokens.at(4).location == Location(1,11));
+    REQUIRE(tokens.at(4).type == Token::Type::TYPE_SPECIFIER);
+
+    REQUIRE(tokens.at(5).value == "F64");
+    REQUIRE(tokens.at(5).location == Location(1,12));
+    REQUIRE(tokens.at(5).type == Token::Type::TYPE_FLOAT_64);
+
+    REQUIRE(tokens.at(6).value == ",");
+    REQUIRE(tokens.at(6).location == Location(1,15));
+    REQUIRE(tokens.at(6).type == Token::Type::SEPARATOR);
+
+    REQUIRE(tokens.at(7).value == "b");
+    REQUIRE(tokens.at(7).location == Location(1,17));
+    REQUIRE(tokens.at(7).type == Token::Type::IDENTIFIER);
+
+    REQUIRE(tokens.at(8).value == ":");
+    REQUIRE(tokens.at(8).location == Location(1,19));
+    REQUIRE(tokens.at(8).type == Token::Type::TYPE_SPECIFIER);
+
+    REQUIRE(tokens.at(9).value == "String");
+    REQUIRE(tokens.at(9).location == Location(1,21));
+    REQUIRE(tokens.at(9).type == Token::Type::TYPE_STRING);
+
+    REQUIRE(tokens.at(10).value == ")");
+    REQUIRE(tokens.at(10).location == Location(1,27));
+    REQUIRE(tokens.at(10).type == Token::Type::CLOSING_PARENTHESIS);
+
+    REQUIRE(tokens.at(11).value == ":");
+    REQUIRE(tokens.at(11).location == Location(1,29));
+    REQUIRE(tokens.at(11).type == Token::Type::TYPE_SPECIFIER);
+
+    REQUIRE(tokens.at(12).value == "String");
+    REQUIRE(tokens.at(12).location == Location(1,31));
+    REQUIRE(tokens.at(12).type == Token::Type::TYPE_STRING);
+
+    REQUIRE(tokens.at(13).value == "do");
+    REQUIRE(tokens.at(13).location == Location(1,38));
+    REQUIRE(tokens.at(13).type == Token::Type::KEYWORD);
+
+    REQUIRE(tokens.at(14).value == "end");
+    REQUIRE(tokens.at(14).location == Location(2,1));
+    REQUIRE(tokens.at(14).type == Token::Type::KEYWORD);
+}

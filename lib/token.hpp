@@ -7,6 +7,7 @@ namespace HoneyBadger {
         enum Type {
             UNKNOWN,
             IDENTIFIER,
+            TYPE_SPECIFIER,
             KEYWORD,
             ASSIGN,
             IF,
@@ -18,6 +19,8 @@ namespace HoneyBadger {
             VARIABLE_DEFINITION,
             SEPARATOR,
             STRING_LITERAL,
+            TYPE_FLOAT_64,
+            TYPE_STRING,
             END_OF_FILE,
         };
         string value;
