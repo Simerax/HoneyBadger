@@ -341,3 +341,47 @@ TEST_CASE("lex string literal with content after string", "[Lexer,String]")
     REQUIRE(tokens.at(7).type == Token::Type::NUMBER);
 }
 
+TEST_CASE("lex multiline string", "[Lexer,String]")
+{
+    string input =
+    "let x = \"string with keyword do inside\n"
+    "still inside the string\"\n"
+    "let y = 25"
+    "";
+
+    Lexer l;
+    auto tokens = l.lex(input);
+
+    REQUIRE(tokens.at(0).value == "let");
+    REQUIRE(tokens.at(0).location == Location(1,1));
+    REQUIRE(tokens.at(0).type == Token::Type::VARIABLE_DEFINITION);
+
+    REQUIRE(tokens.at(1).value == "x");
+    REQUIRE(tokens.at(1).location == Location(1,5));
+    REQUIRE(tokens.at(1).type == Token::Type::IDENTIFIER);
+
+    REQUIRE(tokens.at(2).value == "=");
+    REQUIRE(tokens.at(2).location == Location(1,7));
+    REQUIRE(tokens.at(2).type == Token::Type::ASSIGN);
+
+    REQUIRE(tokens.at(3).value == "string with keyword do inside\nstill inside the string");
+    REQUIRE(tokens.at(3).location == Location(1,9));
+    REQUIRE(tokens.at(3).type == Token::Type::STRING_LITERAL);
+
+    REQUIRE(tokens.at(4).value == "let");
+    REQUIRE(tokens.at(4).location == Location(3,1));
+    REQUIRE(tokens.at(4).type == Token::Type::VARIABLE_DEFINITION);
+
+    REQUIRE(tokens.at(5).value == "y");
+    REQUIRE(tokens.at(5).location == Location(3,5));
+    REQUIRE(tokens.at(5).type == Token::Type::IDENTIFIER);
+
+    REQUIRE(tokens.at(6).value == "=");
+    REQUIRE(tokens.at(6).location == Location(3,7));
+    REQUIRE(tokens.at(6).type == Token::Type::ASSIGN);
+
+    REQUIRE(tokens.at(7).value == "25");
+    REQUIRE(tokens.at(7).location == Location(3,9));
+    REQUIRE(tokens.at(7).type == Token::Type::NUMBER);
+}
+

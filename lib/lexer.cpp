@@ -84,11 +84,13 @@ std::vector<Token> Lexer::lex(string raw_input)
         {
             line++;
             column = 1;
-            word_line = line;
-            word_column = column;
-            inside_comment = false;
             if(!inside_string_literal) // A string literal could be multi line
+            {
+                word_line = line;
+                word_column = column;
                 word = "";
+            }
+            inside_comment = false;
         }
     }
     tokens.push_back(Token("", Location(line, column), Token::Type::END_OF_FILE));
