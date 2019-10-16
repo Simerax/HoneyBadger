@@ -9,8 +9,8 @@ add_definitions(-DLLVM_DISABLE_ABI_BREAKING_CHECKS_ENFORCING=1)
 set(lib_dir "${PROJECT_SOURCE_DIR}/lib/")
 file(GLOB source_files "${lib_dir}/*.cpp" "${lib_dir}/*.hpp")
 
-include_directories("/usr/lib/llvm-3.8/include")
-link_directories("/usr/lib/llvm-3.8/lib")
+include_directories("/usr/lib/llvm-6.0/include")
+link_directories("/usr/lib/llvm-6.0/lib")
 
 enable_testing()
 
