@@ -19,6 +19,31 @@ TEST_CASE("lex variable definition", "[Lexer]")
     REQUIRE(tokens.at(3).type == Token::Type::NUMBER);
 }
 
+TEST_CASE("lex list definition", "[Lexer]")
+{
+    string input = "let x = [1,2] //test comment";
+
+    Lexer l;
+    std::vector<Token> tokens = l.lex(input);
+    REQUIRE(tokens.at(0).value == "let");
+    REQUIRE(tokens.at(0).type == Token::Type::VARIABLE_DEFINITION);
+    REQUIRE(tokens.at(1).value == "x");
+    REQUIRE(tokens.at(1).type == Token::Type::IDENTIFIER);
+    REQUIRE(tokens.at(2).value == "=");
+    REQUIRE(tokens.at(2).type == Token::Type::ASSIGN);
+    REQUIRE(tokens.at(3).value == "[");
+    REQUIRE(tokens.at(3).type == Token::Type::OPENING_SQUARE_BRACKET);
+    REQUIRE(tokens.at(4).value == "1");
+    REQUIRE(tokens.at(4).type == Token::Type::NUMBER);
+    REQUIRE(tokens.at(5).value == ",");
+    REQUIRE(tokens.at(5).type == Token::Type::SEPARATOR);
+    REQUIRE(tokens.at(6).value == "2");
+    REQUIRE(tokens.at(6).type == Token::Type::NUMBER);
+    REQUIRE(tokens.at(7).value == "]");
+    REQUIRE(tokens.at(7).type == Token::Type::CLOSING_SQUARE_BRACKET);
+
+}
+
 TEST_CASE("lex simple comment", "[Lexer]")
 {
     string input = 

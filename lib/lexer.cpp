@@ -78,7 +78,14 @@ std::vector<Token> Lexer::lex(string raw_input)
             Token::Type t = get_type(string(1, cc));
 
             // in case the delimiter was a special char we add that one to the tokens
-            if (is_operator(cc) || t == Token::Type::SEPARATOR || t == Token::Type::OPENING_PARENTHESIS || t == Token::Type::CLOSING_PARENTHESIS || t == Token::Type::TYPE_SPECIFIER)
+            if (is_operator(cc) 
+                || t == Token::Type::SEPARATOR 
+                || t == Token::Type::OPENING_PARENTHESIS 
+                || t == Token::Type::CLOSING_PARENTHESIS 
+                || t == Token::Type::TYPE_SPECIFIER
+                || t == Token::Type::OPENING_SQUARE_BRACKET
+                || t == Token::Type::CLOSING_SQUARE_BRACKET
+                )
             {
                 tokens.push_back(Token(string(1, cc), Location(line, column - 1), t));
             }
@@ -137,6 +144,10 @@ Token::Type Lexer::get_type(string word)
         return Token::Type::TYPE_FLOAT_64;
     if (word == "String")
         return Token::Type::TYPE_STRING;
+    if (word == "[")
+        return Token::Type::OPENING_SQUARE_BRACKET;
+    if (word == "]")
+        return Token::Type::CLOSING_SQUARE_BRACKET;
     if (word == ",")
         return Token::Type::SEPARATOR;
     if (word == "if")
@@ -172,7 +183,7 @@ bool Lexer::looks_like_number(string str)
 
 bool Lexer::is_delimiter(char c)
 {
-    return c == ' ' || c == '(' || c == ')' || c == ',' || c == ':';
+    return c == ' ' || c == '(' || c == ')' || c == ',' || c == ':' || c == '['|| c == ']';
 }
 
 bool Lexer::is_newline(char c)
