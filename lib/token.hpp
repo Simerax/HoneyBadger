@@ -22,6 +22,8 @@ namespace HoneyBadger {
             TYPE_FLOAT_64,
             TYPE_STRING,
             END_OF_FILE,
+            OPENING_SQUARE_BRACKET,
+            CLOSING_SQUARE_BRACKET
         };
         string value;
         Location location;
