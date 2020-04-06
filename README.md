@@ -14,7 +14,7 @@ _no you don't need to care_
 #### Getting started
 2. get llvm-6.0, cmake & clang
    * something like `apt-get install llvm-6.0 cmake clang` should do the trick (at least on debian based distros)
-3. run `./build.sh`
+3. run `./build.sh` (You will probably need to change the lib / include dirs in CMakeLists.txt)
 4. run `./run.sh first.hb`
    * if you got some output that looks reasonable: congratulations you successfully ran a unnecessary program 👍
 
