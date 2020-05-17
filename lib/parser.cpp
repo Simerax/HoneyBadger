@@ -125,11 +125,14 @@ Ref<AST::FunctionSignature> Parser::parse_function_signature()
 
 Ref<AST::Function> Parser::parse_function()
 {
+    auto loc = current_token().location;
     expect("def");
     auto signature = parse_function_signature();
     auto body = parse_block();
     expect("end");
-    return std::make_shared<AST::Function>(signature, body);
+    auto fun = std::make_shared<AST::Function>(signature, body);
+    fun->location = loc;
+    return fun;
 }
 
 Ref<AST::Node> Parser::parse_expression()

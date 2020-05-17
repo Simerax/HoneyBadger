@@ -15,7 +15,7 @@ namespace HoneyBadger {
         return this->line == other.line && this->column == other.column;
     }
     string Location::to_string() const {
-        return string(std::to_string(this->line) +":"+std::to_string(this->column));
+        return string("Line: " + std::to_string(this->line) +", Column: "+std::to_string(this->column));
     }
 
     std::ostream& operator<<(std::ostream &os, const Location &loc) {

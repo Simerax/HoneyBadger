@@ -184,7 +184,7 @@ public:
         }
 
         if (!fn->empty())
-            throw std::runtime_error("Functions cannot be redefined!");
+            throw std::runtime_error("Function '" + fn_name + "' redefined at " + n.location.to_string());
 
         llvm::BasicBlock *block = llvm::BasicBlock::Create(*context, "entry", fn);
         builder->SetInsertPoint(block);
